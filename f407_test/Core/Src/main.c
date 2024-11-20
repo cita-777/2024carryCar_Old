@@ -1,24 +1,23 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2024 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "dma.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -26,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "usart_api.h"
 #include "Emm_V5.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,18 +46,31 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+// 定义实时位置全局变量
+float pos = 0.0f, Motor_Cur_Pos = 0.0f;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
+#ifdef __GNUC__
 
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+
+#else
+
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+
+#endif /* __GNUC__ */
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+int fputc(int ch, FILE *f)
+{
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
+  return ch;
+}
 /* USER CODE END 0 */
 
 /**
@@ -89,41 +102,107 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-    Emm_V5_Pos_Control(1, 1, 1000, 0, 20000, 0, 1);
-		 HAL_Delay(20);  //延时1s
-    Emm_V5_Pos_Control(2, 1, 1000, 0, 20000, 0, 1);
-		 HAL_Delay(20);  //延时1s
-    Emm_V5_Pos_Control(3, 1, 1000, 0, 20000, 0, 1);
-		 HAL_Delay(20);  //延时1s
-    Emm_V5_Pos_Control(4, 1, 1000, 0, 20000, 0, 1);
-		 HAL_Delay(20);  //延时1s
-    //Emm_V5_Vel_Control(2, 1, 1000, 10, 1);delay_ms(20);
-    Emm_V5_Synchronous_motion(0);
-		 HAL_Delay(3000);  //延时1s
-    Emm_V5_Stop_Now(0,1);
-		 HAL_Delay(20);  //延时1s
-    Emm_V5_Synchronous_motion(0);
-  /* USER CODE END 2 */
 
+  /**********************************************************
+   ***	上电延时2秒等待Emm_V5.0闭环初始化完毕
+   **********************************************************/
+  HAL_Delay(2000);
 
-  while (1)
+  /**********************************************************
+  ***	将当前四个电机位置清零
+  **********************************************************/
+  Emm_V5_Reset_CurPos_To_Zero(1);
+  HAL_Delay(20);
+  Emm_V5_Reset_CurPos_To_Zero(2);
+  HAL_Delay(20);
+  Emm_V5_Reset_CurPos_To_Zero(3);
+  HAL_Delay(20);
+  Emm_V5_Reset_CurPos_To_Zero(4);
+  HAL_Delay(20);
+
+  /**********************************************************
+  ***	触发回零
+  **********************************************************/
+  Emm_V5_Synchronous_motion(0);
+  HAL_Delay(3000);
+
+  /**********************************************************
+  ***	使用位置模式平缓运行一段时间
+  **********************************************************/
+  Emm_V5_Pos_Control(1, 1, 700, 50, 20000, 0, 1);
+  HAL_Delay(20); // 延时1s
+  Emm_V5_Pos_Control(2, 1, 700, 50, 20000, 0, 1);
+  HAL_Delay(20); // 延时1s
+  Emm_V5_Pos_Control(3, 1, 1000, 100, 20000, 0, 1);
+  HAL_Delay(20); // 延时1s
+  Emm_V5_Pos_Control(4, 1, 700, 50, 20000, 0, 1);
+  HAL_Delay(20); // 延时1s
+  Emm_V5_Synchronous_motion(0);
+
+  /**********************************************************
+  ***	到位后自动停止
+  **********************************************************/
+  //    Emm_V5_Stop_Now(0, 1);
+  //    HAL_Delay(20);
+  //    Emm_V5_Synchronous_motion(0);
+
+  /**********************************************************
+  ***	延时2秒，等待运动完成
+  **********************************************************/
+  HAL_Delay(8000);
+
+  /**********************************************************
+  ***	读取电机实时位置
+  **********************************************************/
+  Emm_V5_Read_Sys_Params(1, S_CPOS);
+
+  /**********************************************************
+  ***	等待返回命令，命令数据缓存在数组rxCmd上，长度为rxCount
+  **********************************************************/
+  while (rxFrameFlag == false){
+    HAL_UART_Transmit(&huart1, (uint8_t *)"hello 1!\r\n", 16 , 0xffff);}
+    ;
+  rxFrameFlag = false;
+
+  /**********************************************************
+  ***	校验地址、功能码、返回数据长度，校验成功则计算当前位置角度
+  **********************************************************/
+  if (rxCmd[0] == 1 && rxCmd[1] == 0x36 && rxCount == 8)
   {
-		  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-		 HAL_Delay(500);  //延时1s
+    // 拼接成uint32_t类型
+    pos = (uint32_t)(((uint32_t)rxCmd[3] << 24) |
+                     ((uint32_t)rxCmd[4] << 16) |
+                     ((uint32_t)rxCmd[5] << 8) |
+                     ((uint32_t)rxCmd[6] << 0));
 
+    // 转换成角度
+    Motor_Cur_Pos = (float)pos * 360.0f / 65536.0f;
 
-    /* USER CODE END WHILE */
-
-
+    // 符号
+    if (rxCmd[2])
+    {
+      Motor_Cur_Pos = -Motor_Cur_Pos;
+    }
   }
-	/* USER CODE BEGIN 3 */
-  /* USER CODE END 3 */
-}
 
+  /* USER CODE END 2 */
+while(1){
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+    HAL_Delay(500);
+    printf("Float Data: %f \r\n", pos);
+    HAL_Delay(500);
+    printf("Float Data: %f \r\n", Motor_Cur_Pos);
+    HAL_UART_Transmit(&huart1, (uint8_t *)"hello 1!\r\n", 16 , 0xffff);
+		 HAL_Delay(500);  //延时1s
+    /* USER CODE END WHILE */
+};
+    /* USER CODE BEGIN 3 */
+  /* USER CODE END 3 */
+
+}
 /**
   * @brief System Clock Configuration
   * @retval None

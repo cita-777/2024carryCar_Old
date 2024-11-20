@@ -29,5 +29,6 @@ f407_test\usart_api.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_r
 f407_test\usart_api.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h
 f407_test\usart_api.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h
 f407_test\usart_api.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
-f407_test\usart_api.o: D:\MDK-ARM5.41\ARM\ARMCC\Bin\..\include\stdbool.h
 f407_test\usart_api.o: ../Core/Inc/fifo.h
+f407_test\usart_api.o: D:\MDK-ARM5.41\ARM\ARMCC\Bin\..\include\stdbool.h
+f407_test\usart_api.o: D:\MDK-ARM5.41\ARM\ARMCC\Bin\..\include\stdio.h

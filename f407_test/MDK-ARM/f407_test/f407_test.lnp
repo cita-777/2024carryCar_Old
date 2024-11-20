@@ -1,14 +1,13 @@
 --cpu=Cortex-M4.fp.sp
 "f407_test\startup_stm32f407xx.o"
-"f407_test\main.o"
-"f407_test\gpio.o"
-"f407_test\dma.o"
-"f407_test\usart.o"
-"f407_test\stm32f4xx_it.o"
-"f407_test\stm32f4xx_hal_msp.o"
 "f407_test\usart_api.o"
 "f407_test\fifo.o"
 "f407_test\emm_v5.o"
+"f407_test\main.o"
+"f407_test\gpio.o"
+"f407_test\usart.o"
+"f407_test\stm32f4xx_it.o"
+"f407_test\stm32f4xx_hal_msp.o"
 "f407_test\stm32f4xx_hal_tim.o"
 "f407_test\stm32f4xx_hal_tim_ex.o"
 "f407_test\stm32f4xx_hal_uart.o"
@@ -26,7 +25,7 @@
 "f407_test\stm32f4xx_hal.o"
 "f407_test\stm32f4xx_hal_exti.o"
 "f407_test\system_stm32f4xx.o"
---strict --scatter "f407_test\f407_test.sct"
+--library_type=microlib --strict --scatter "f407_test\f407_test.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "f407_test.map" -o f407_test\f407_test.axf
