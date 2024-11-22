@@ -18,13 +18,16 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "usart_api.h"
-#include "Emm_V5.h"
+#include "motor_ctrl.h"
+#include "state_machine.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -102,93 +105,35 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART1_UART_Init();
+  MX_USART2_UART_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
+	
+    // 初始化电机
+    Motor_Init();
+    StateMachine_Init();
+    // 启动DMA接收
+    HAL_UART_Receive_DMA(&huart2, Usart_Receive, 80);
 
-  /**********************************************************
-   ***	上电延时2秒等待Emm_V5.0闭环初始化完毕
-   **********************************************************/
-  HAL_Delay(2000);
+    // 启动TIM6定时器
+    HAL_TIM_Base_Start_IT(&htim6);
 
-  /**********************************************************
-  ***	将当前四个电机位置清零
-  **********************************************************/
-  Emm_V5_Reset_CurPos_To_Zero(1);
-  HAL_Delay(20);
-  Emm_V5_Reset_CurPos_To_Zero(2);
-  HAL_Delay(20);
-  Emm_V5_Reset_CurPos_To_Zero(3);
-  HAL_Delay(20);
-  Emm_V5_Reset_CurPos_To_Zero(4);
-  HAL_Delay(20);
 
-  /**********************************************************
-  ***	触发回零
-  **********************************************************/
-  Emm_V5_Synchronous_motion(0);
-  HAL_Delay(3000);
+    //HAL_Delay(8000);
+    // 旋转运动
+    // Motor_turnLeft_rotate();
 
-  /**********************************************************
-  ***	使用位置模式平缓运行一段时间
-  **********************************************************/
-  Emm_V5_Pos_Control(1, 1, 700, 50, 20000, 0, 1);
-  HAL_Delay(20); // 延时1s
-  Emm_V5_Pos_Control(2, 1, 700, 50, 20000, 0, 1);
-  HAL_Delay(20); // 延时1s
-  Emm_V5_Pos_Control(3, 1, 1000, 100, 20000, 0, 1);
-  HAL_Delay(20); // 延时1s
-  Emm_V5_Pos_Control(4, 1, 700, 50, 20000, 0, 1);
-  HAL_Delay(20); // 延时1s
-  Emm_V5_Synchronous_motion(0);
+    // HAL_Delay(8000);
+    // 停止运动
+    //Motor_Stop();
 
-  /**********************************************************
-  ***	到位后自动停止
-  **********************************************************/
-  //    Emm_V5_Stop_Now(0, 1);
-  //    HAL_Delay(20);
-  //    Emm_V5_Synchronous_motion(0);
-
-  /**********************************************************
-  ***	延时2秒，等待运动完成
-  **********************************************************/
-  HAL_Delay(8000);
-
-  /**********************************************************
-  ***	读取电机实时位置
-  **********************************************************/
-  Emm_V5_Read_Sys_Params(1, S_CPOS);
-
-  /**********************************************************
-  ***	等待返回命令，命令数据缓存在数组rxCmd上，长度为rxCount
-  **********************************************************/
-  while (rxFrameFlag == false){
-    HAL_UART_Transmit(&huart1, (uint8_t *)"hello 1!\r\n", 16 , 0xffff);}
-    ;
-  rxFrameFlag = false;
-
-  /**********************************************************
-  ***	校验地址、功能码、返回数据长度，校验成功则计算当前位置角度
-  **********************************************************/
-  if (rxCmd[0] == 1 && rxCmd[1] == 0x36 && rxCount == 8)
-  {
-    // 拼接成uint32_t类型
-    pos = (uint32_t)(((uint32_t)rxCmd[3] << 24) |
-                     ((uint32_t)rxCmd[4] << 16) |
-                     ((uint32_t)rxCmd[5] << 8) |
-                     ((uint32_t)rxCmd[6] << 0));
-
-    // 转换成角度
-    Motor_Cur_Pos = (float)pos * 360.0f / 65536.0f;
-
-    // 符号
-    if (rxCmd[2])
-    {
-      Motor_Cur_Pos = -Motor_Cur_Pos;
-    }
-  }
+    // 自定义运动
+    //Motor_Custom_Move(1, 0, 1000, 100, 20000, 0, 1);
 
   /* USER CODE END 2 */
-while(1){
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     HAL_Delay(500);
@@ -198,11 +143,11 @@ while(1){
     HAL_UART_Transmit(&huart1, (uint8_t *)"hello 1!\r\n", 16 , 0xffff);
 		 HAL_Delay(500);  //延时1s
     /* USER CODE END WHILE */
-};
+
     /* USER CODE BEGIN 3 */
   /* USER CODE END 3 */
-
 }
+
 /**
   * @brief System Clock Configuration
   * @retval None

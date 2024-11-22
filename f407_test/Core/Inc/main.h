@@ -57,6 +57,10 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define imu_uart_Pin GPIO_PIN_2
+#define imu_uart_GPIO_Port GPIOA
+#define imu_uartA3_Pin GPIO_PIN_3
+#define imu_uartA3_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
