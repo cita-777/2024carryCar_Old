@@ -1,5 +1,5 @@
-f407_test\fifo.o: ..\Core\Src\fifo.c
-f407_test\fifo.o: ../Core/Inc/fifo.h
+f407_test\fifo.o: ..\Middleware\fifo.c
+f407_test\fifo.o: ..\Middleware\fifo.h
 f407_test\fifo.o: D:\MDK-ARM5.41\ARM\ARMCC\Bin\..\include\stdint.h
 f407_test\fifo.o: D:\MDK-ARM5.41\ARM\ARMCC\Bin\..\include\stdbool.h
 f407_test\fifo.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h

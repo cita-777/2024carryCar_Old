@@ -1,4 +1,4 @@
-f407_test\main.o: ../Core/Src/main.c
+f407_test\main.o: ..\Core\Src\main.c
 f407_test\main.o: ../Core/Inc/main.h
 f407_test\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 f407_test\main.o: ../Core/Inc/stm32f4xx_hal_conf.h
@@ -35,10 +35,11 @@ f407_test\main.o: ../Core/Inc/dma.h
 f407_test\main.o: ../Core/Inc/tim.h
 f407_test\main.o: ../Core/Inc/usart.h
 f407_test\main.o: ../Core/Inc/gpio.h
-f407_test\main.o: ../Core/Inc/usart_api.h
-f407_test\main.o: ../Core/Inc/fifo.h
-f407_test\main.o: D:\MDK-ARM5.41\ARM\ARMCC\Bin\..\include\stdbool.h
-f407_test\main.o: ../Core/Inc/motor_ctrl.h
-f407_test\main.o: ../Core/Inc/state_machine.h
-f407_test\main.o: ../Core/Inc/pi_controller.h
+f407_test\main.o: ..\System\debug_mode.h
 f407_test\main.o: D:\MDK-ARM5.41\ARM\ARMCC\Bin\..\include\stdio.h
+f407_test\main.o: ..\Middleware\usart_api.h
+f407_test\main.o: ..\Middleware\fifo.h
+f407_test\main.o: D:\MDK-ARM5.41\ARM\ARMCC\Bin\..\include\stdbool.h
+f407_test\main.o: ..\BSP\motor_ctrl.h
+f407_test\main.o: ..\App\state_machine.h
+f407_test\main.o: ..\App\pi_controller.h

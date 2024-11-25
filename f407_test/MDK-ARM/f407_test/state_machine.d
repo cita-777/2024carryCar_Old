@@ -1,6 +1,6 @@
-f407_test\state_machine.o: ..\Core\Src\state_machine.c
-f407_test\state_machine.o: ../Core/Inc/state_machine.h
-f407_test\state_machine.o: ../Core/Inc/pi_controller.h
+f407_test\state_machine.o: ..\App\state_machine.c
+f407_test\state_machine.o: ..\App\state_machine.h
+f407_test\state_machine.o: ..\App\pi_controller.h
 f407_test\state_machine.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 f407_test\state_machine.o: ../Core/Inc/stm32f4xx_hal_conf.h
 f407_test\state_machine.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h
@@ -32,8 +32,8 @@ f407_test\state_machine.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr
 f407_test\state_machine.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 f407_test\state_machine.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 f407_test\state_machine.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
-f407_test\state_machine.o: ../Core/Inc/motor_ctrl.h
-f407_test\state_machine.o: ../Core/Inc/imu.h
+f407_test\state_machine.o: ..\BSP\motor_ctrl.h
+f407_test\state_machine.o: ..\BSP\imu.h
 f407_test\state_machine.o: ../Core/Inc/usart.h
 f407_test\state_machine.o: ../Core/Inc/main.h
 f407_test\state_machine.o: D:\MDK-ARM5.41\ARM\ARMCC\Bin\..\include\stdio.h

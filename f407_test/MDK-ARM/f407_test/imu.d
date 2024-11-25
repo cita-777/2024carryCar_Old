@@ -1,5 +1,5 @@
-f407_test\imu.o: ..\Core\Src\imu.c
-f407_test\imu.o: ../Core/Inc/imu.h
+f407_test\imu.o: ..\BSP\imu.c
+f407_test\imu.o: ..\BSP\imu.h
 f407_test\imu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 f407_test\imu.o: ../Core/Inc/stm32f4xx_hal_conf.h
 f407_test\imu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h

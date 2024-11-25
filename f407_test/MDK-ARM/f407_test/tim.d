@@ -1,4 +1,4 @@
-f407_test\tim.o: ../Core/Src/tim.c
+f407_test\tim.o: ..\Core\Src\tim.c
 f407_test\tim.o: ../Core/Inc/tim.h
 f407_test\tim.o: ../Core/Inc/main.h
 f407_test\tim.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h

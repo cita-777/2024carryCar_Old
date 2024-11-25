@@ -21,7 +21,7 @@ void StateMachine_Init(void)
     // 初始化PI控制器
     PI_Controller_Init(&piController, 1.0, 0.1); // Kp=1.0, Ki=0.1
 	    // 设置初始状态
-    //StateMachine_SetState(STATE_MACHINE_MOVE_LINEAR);
+    StateMachine_SetState(STATE_MOVE_LINEAR);
 }
 
 void StateMachine_Update(void)
@@ -43,12 +43,13 @@ void StateMachine_Update(void)
             correction = PI_Controller_Update(&piController, yaw);
 
             // 调整电机速度以修正方向
-            Motor_Custom_Move(1, 0, 1000 + correction, 100, 20000, 0, 1);
-            Motor_Custom_Move(2, 1, 1000 - correction, 100, 20000, 0, 1);
-            Motor_Custom_Move(3, 0, 1000 + correction, 100, 20000, 0, 1);
-            Motor_Custom_Move(4, 1, 1000 - correction, 100, 20000, 0, 1);
+            // Motor_Custom_Move(1, 0, 1000 + correction, 100, 20000, 0, 1);
+            // Motor_Custom_Move(2, 1, 1000 - correction, 100, 20000, 0, 1);
+            // Motor_Custom_Move(3, 0, 1000 + correction, 100, 20000, 0, 1);
+            // Motor_Custom_Move(4, 1, 1000 - correction, 100, 20000, 0, 1);
 
             // 通过printf格式化输出Yaw轴数据
+
             printf("Yaw: %.2f\r\n", yaw);
             break;
 

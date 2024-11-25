@@ -1,5 +1,5 @@
-f407_test\usart_api.o: ..\Core\Src\usart_api.c
-f407_test\usart_api.o: ../Core/Inc/usart_api.h
+f407_test\usart_api.o: ..\Middleware\usart_api.c
+f407_test\usart_api.o: ..\Middleware\usart_api.h
 f407_test\usart_api.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 f407_test\usart_api.o: ../Core/Inc/stm32f4xx_hal_conf.h
 f407_test\usart_api.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h
@@ -31,7 +31,7 @@ f407_test\usart_api.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.
 f407_test\usart_api.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 f407_test\usart_api.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 f407_test\usart_api.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
-f407_test\usart_api.o: ../Core/Inc/fifo.h
+f407_test\usart_api.o: ..\Middleware\fifo.h
 f407_test\usart_api.o: D:\MDK-ARM5.41\ARM\ARMCC\Bin\..\include\stdbool.h
 f407_test\usart_api.o: D:\MDK-ARM5.41\ARM\ARMCC\Bin\..\include\stdio.h
-f407_test\usart_api.o: ../Core/Inc/imu.h
+f407_test\usart_api.o: ..\BSP\imu.h

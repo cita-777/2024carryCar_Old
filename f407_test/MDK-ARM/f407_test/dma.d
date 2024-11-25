@@ -1,4 +1,4 @@
-f407_test\dma.o: ../Core/Src/dma.c
+f407_test\dma.o: ..\Core\Src\dma.c
 f407_test\dma.o: ../Core/Inc/dma.h
 f407_test\dma.o: ../Core/Inc/main.h
 f407_test\dma.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h

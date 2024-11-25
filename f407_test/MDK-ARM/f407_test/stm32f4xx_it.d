@@ -1,4 +1,4 @@
-f407_test\stm32f4xx_it.o: ../Core/Src/stm32f4xx_it.c
+f407_test\stm32f4xx_it.o: ..\Core\Src\stm32f4xx_it.c
 f407_test\stm32f4xx_it.o: ../Core/Inc/main.h
 f407_test\stm32f4xx_it.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 f407_test\stm32f4xx_it.o: ../Core/Inc/stm32f4xx_hal_conf.h

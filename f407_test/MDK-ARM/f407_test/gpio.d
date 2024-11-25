@@ -1,4 +1,4 @@
-f407_test\gpio.o: ../Core/Src/gpio.c
+f407_test\gpio.o: ..\Core\Src\gpio.c
 f407_test\gpio.o: ../Core/Inc/gpio.h
 f407_test\gpio.o: ../Core/Inc/main.h
 f407_test\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h

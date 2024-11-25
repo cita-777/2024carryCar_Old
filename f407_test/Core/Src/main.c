@@ -25,6 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "debug_mode.h"
 #include "usart_api.h"
 #include "motor_ctrl.h"
 #include "state_machine.h"
@@ -56,30 +57,16 @@ float pos = 0.0f, Motor_Cur_Pos = 0.0f;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-#ifdef __GNUC__
-
-#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-
-#else
-
-#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
-
-#endif /* __GNUC__ */
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int fputc(int ch, FILE *f)
-{
-  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
-  return ch;
-}
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
 
@@ -110,61 +97,64 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-	
-    // 初始化电机
-    Motor_Init();
-    StateMachine_Init();
-    // 启动DMA接收
-    HAL_UART_Receive_DMA(&huart2, Usart_Receive, 80);
 
-    // 启动TIM6定时器
-    HAL_TIM_Base_Start_IT(&htim6);
+  // 初始化电机
+  Motor_Init();
+  StateMachine_Init();
+  // 启动DMA接收
+  HAL_UART_Receive_DMA(&huart2, Usart_Receive, 80);
 
+  // 启动TIM6定时器
+  HAL_TIM_Base_Start_IT(&htim6);
 
-    //HAL_Delay(8000);
-    // 旋转运动
-    // Motor_turnLeft_rotate();
+  // HAL_Delay(8000);
+  //  旋转运动
+  //  Motor_turnLeft_rotate();
 
-    // HAL_Delay(8000);
-    // 停止运动
-    //Motor_Stop();
+  // HAL_Delay(8000);
+  // 停止运动
+  // Motor_Stop();
 
-    // 自定义运动
-    //Motor_Custom_Move(1, 0, 1000, 100, 20000, 0, 1);
+  // 自定义运动
+  // Motor_Custom_Move(1, 0, 1000, 100, 20000, 0, 1);
 
   /* USER CODE END 2 */
+  while (1)
+  {
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+    /* Infinite loop */
+    /* USER CODE BEGIN WHILE */
     HAL_Delay(500);
     printf("Float Data: %f \r\n", pos);
     HAL_Delay(500);
     printf("Float Data: %f \r\n", Motor_Cur_Pos);
-    HAL_UART_Transmit(&huart1, (uint8_t *)"hello 1!\r\n", 16 , 0xffff);
-		 HAL_Delay(500);  //延时1s
+    HAL_UART_Transmit(&huart1, (uint8_t *)"hello 1!\r\n", 16, 0xffff);
+    HAL_Delay(500); // 延时1s
+    StateMachine_Update();
+    HAL_Delay(500);
     /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
+  }
+  /* USER CODE BEGIN 3 */
   /* USER CODE END 3 */
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-  */
+   */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -179,9 +169,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
@@ -198,9 +187,9 @@ void SystemClock_Config(void)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -212,14 +201,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

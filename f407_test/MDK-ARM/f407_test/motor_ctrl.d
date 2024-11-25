@@ -1,5 +1,5 @@
-f407_test\motor_ctrl.o: ..\Core\Src\motor_ctrl.c
-f407_test\motor_ctrl.o: ../Core/Inc/motor_ctrl.h
+f407_test\motor_ctrl.o: ..\BSP\motor_ctrl.c
+f407_test\motor_ctrl.o: ..\BSP\motor_ctrl.h
 f407_test\motor_ctrl.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 f407_test\motor_ctrl.o: ../Core/Inc/stm32f4xx_hal_conf.h
 f407_test\motor_ctrl.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h
@@ -31,8 +31,8 @@ f407_test\motor_ctrl.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex
 f407_test\motor_ctrl.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 f407_test\motor_ctrl.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 f407_test\motor_ctrl.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
-f407_test\motor_ctrl.o: ../Core/Inc/usart_api.h
-f407_test\motor_ctrl.o: ../Core/Inc/fifo.h
+f407_test\motor_ctrl.o: ..\Middleware\usart_api.h
+f407_test\motor_ctrl.o: ..\Middleware\fifo.h
 f407_test\motor_ctrl.o: D:\MDK-ARM5.41\ARM\ARMCC\Bin\..\include\stdbool.h
-f407_test\motor_ctrl.o: ../Core/Inc/Emm_V5.h
+f407_test\motor_ctrl.o: ..\Middleware\Emm_V5.h
 f407_test\motor_ctrl.o: D:\MDK-ARM5.41\ARM\ARMCC\Bin\..\include\stdio.h
