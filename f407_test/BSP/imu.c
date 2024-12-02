@@ -1,80 +1,91 @@
 #include "imu.h"
-#include "usart.h"
-#include <string.h>
 
-#define FRAME_HEAD 0xAA
-#define FRAME_END 0x55
-#define TYPE_IMU 0x01
-#define TYPE_AHRS 0x02
-#define IMU_LEN 64
-#define AHRS_LEN 56
+//结构体定义
+MSG_EULER_ORIEN MEO_Struct;
 
-uint8_t Fd_data[80];
-uint8_t Fd_rsahrs[80];
-uint8_t Usart_Receive[80]; // 将Usart_Receive声明为非易失性（non-volatile）
-uint8_t Count = 0;
-uint8_t rs_count = 0;
-uint8_t rsacc_flag = 0;
-uint8_t rs_ahrstype = 0;
-
-float yaw_angle = 0.0f;
-volatile uint8_t imu_data_ready = 0;
-
-void IMU_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+//串口空闲中断回调函数
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
-    for (int i = 0; i < 80; i++)
-    {
-        Fd_data[i] = Usart_Receive[i];
-    }
-
-    for (int i = 0; i < 80; i++)
-    {
-        if (((rs_count == 0) && (Fd_data[i] == FRAME_HEAD)) || (Count > 0))
-        {
-            rs_count = 1;
-            Count++;
-            if ((Fd_data[1] == TYPE_AHRS) && (Fd_data[2] == AHRS_LEN))
-                rsacc_flag = 1;
-        }
-
-        if (rsacc_flag == 1 && Count == AHRS_LEN)
-        {
-            Count = 0;
-            rsacc_flag = 0;
-            rs_ahrstype = 1;
-            if (Fd_data[AHRS_LEN - 1] == FRAME_END)
-                memcpy(Fd_rsahrs, Fd_data, AHRS_LEN);
-        }
-    }
-
-    // 设置标志位，表示IMU数据已准备好
-    imu_data_ready = 1;
-
-    // 重新启动DMA接收
-    HAL_UART_Receive_DMA(&huart2, Usart_Receive, 80);
+	if (huart->Instance == USART2)
+	{
+		if(Size == MSG_EULER_ORIEN_LEN)//从长度判断是否为目标数据包
+		{
+			for(char i = 0;i < MSG_EULER_ORIEN_LEN;i++)
+			{
+				//printf("write origin imu data! \r\n");
+				MEO_Data[i] = MSG_EULER_ORIEN_Buf[i];//写入原始数据储存数组
+			}
+			if(Data_Check(MEO_Data, Msg_Euler_Orien, MSG_EULER_ORIEN_LEN))
+			{
+				//printf(" imu data process successful!\r\n");
+				MEO_PacketDec(MEO_Data, &MEO_Struct);//解码储存
+         printf("Yaw Angle: %f\n", MEO_Struct.Heading);
+			}
+		}
+	}
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart2,(uint8_t *)MSG_EULER_ORIEN_Buf, sizeof(MSG_EULER_ORIEN_Buf));//重新使能串口DMA接收空闲中断
 }
 
-void IMU_ProcessData(void)
+//通过数据包头、尾、ID检查数据是否正确
+//返回值：正确1，错误0
+int8_t Data_Check(uint8_t * Rx_Buffer, uint8_t ID, uint8_t Length)
 {
-    if (rs_ahrstype == 1)
-    {
-        if (Fd_rsahrs[1] == TYPE_AHRS && Fd_rsahrs[2] == AHRS_LEN)
-        {
-            yaw_angle = DATA_Trans(Fd_rsahrs[27], Fd_rsahrs[28], Fd_rsahrs[29], Fd_rsahrs[30]);
-            rs_ahrstype = 0;
-        }
-    }
+	if(Rx_Buffer[0] == 0xFC&&Rx_Buffer[Length -1] == 0xFD&&Rx_Buffer[1] == ID)
+		return 1;
+	else
+		return 0;
 }
 
-float IMU_GetYaw(void)
+/**********************************
+实现16进制的数据转换成浮点型数据
+**********************************/
+float DATA_Trans(uint8_t Data_1,uint8_t Data_2,uint8_t Data_3,uint8_t Data_4)
 {
-    return yaw_angle;
+	long long transition_32;
+	float tmp=0;
+	int sign=0;
+	int exponent=0;
+	float mantissa=0;
+	
+	transition_32 = 0;
+	transition_32 |=  Data_4<<24;   
+	transition_32 |=  Data_3<<16; 
+	transition_32 |=  Data_2<<8;
+	transition_32 |=  Data_1;
+	
+	sign = (transition_32 & 0x80000000) ? -1 : 1;//符号位
+	
+	//先右移操作，再按位与计算，出来结果是30到23位对应的e
+	exponent = ((transition_32 >> 23) & 0xff) - 127;
+	
+	//将22~0转化为10进制，得到对应的x系数 
+	mantissa = 1 + ((float)(transition_32 & 0x7fffff) / 0x7fffff);
+	
+	tmp=sign * mantissa * pow(2, exponent);
+	
+	return tmp;
+}//此函数完全移植于例程
+
+//弧度转角度
+float RadtoDegree(float rads)
+{
+	return rads * 180.0f / Pi;
 }
 
-float DATA_Trans(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t byte4)
+//数据解码
+void MSS_PacketDec(uint8_t * Rx_Buffer, MSG_SYS_STATE * DecodedStruct)
 {
-    uint32_t data = ((uint32_t)byte1 << 24) | ((uint32_t)byte2 << 16) | ((uint32_t)byte3 << 8) | byte4;
-    float result;
-    memcpy(&result, &data, sizeof(result));
-    return result;
+
+}
+
+void MEO_PacketDec(uint8_t * Rx_Buffer, MSG_EULER_ORIEN * DecodedStruct)
+{
+	DecodedStruct->Roll 	= RadtoDegree( DATA_Trans(Rx_Buffer[7],  Rx_Buffer[8],  Rx_Buffer[9],  Rx_Buffer[10]) );
+	DecodedStruct->Pitch 	= RadtoDegree( DATA_Trans(Rx_Buffer[11], Rx_Buffer[12], Rx_Buffer[13], Rx_Buffer[14]) );
+	DecodedStruct->Heading 	= RadtoDegree( DATA_Trans(Rx_Buffer[15], Rx_Buffer[16], Rx_Buffer[17], Rx_Buffer[18]) );
+}
+
+float GetYawAngle(void)
+{
+    return MEO_Struct.Heading;
 }

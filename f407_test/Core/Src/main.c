@@ -28,6 +28,7 @@
 #include "debug_mode.h"
 #include "usart_api.h"
 #include "motor_ctrl.h"
+#include "imu.h"
 #include "state_machine.h"
 #include <stdio.h>
 /* USER CODE END Includes */
@@ -50,8 +51,15 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-// 定义实时位置全局变量
-float pos = 0.0f, Motor_Cur_Pos = 0.0f;
+//解码数据结构体
+MSG_SYS_STATE MSSDecodedData;
+
+//接收数据数组
+uint8_t MSG_SYS_STATE_Buf[MSG_SYS_STATE_LEN];
+uint8_t MSG_EULER_ORIEN_Buf[DATA_LEN(MSG_EULER_ORIEN_LEN)];
+
+//储存数据数组
+uint8_t MEO_Data[MSG_EULER_ORIEN_LEN];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -97,12 +105,12 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart2,(uint8_t *)MSG_EULER_ORIEN_Buf, sizeof(MSG_EULER_ORIEN_Buf));
   // 初始化电机
   Motor_Init();
-  StateMachine_Init();
-  // 启动DMA接收
-  HAL_UART_Receive_DMA(&huart2, Usart_Receive, 80);
+	//Motor_Move_Linear();
+  //StateMachine_Init();
+
 
   // 启动TIM6定时器
   HAL_TIM_Base_Start_IT(&htim6);
@@ -119,19 +127,18 @@ int main(void)
   // Motor_Custom_Move(1, 0, 1000, 100, 20000, 0, 1);
 
   /* USER CODE END 2 */
-
+while(1){
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     HAL_Delay(500);
-    printf("Float Data: %f \r\n", pos);
-    HAL_Delay(500);
-    printf("Float Data: %f \r\n", Motor_Cur_Pos);
+    float yaw = GetYawAngle();
+    printf("Yaw Angle: %f\n", yaw);
     HAL_UART_Transmit(&huart1, (uint8_t *)"hello 1!\r\n", 16, 0xffff);
     HAL_Delay(500); // 延时1s
-    StateMachine_Update();
+    //StateMachine_Update();
     HAL_Delay(500);
     /* USER CODE END WHILE */
-
+}
     /* USER CODE BEGIN 3 */
   /* USER CODE END 3 */
 }

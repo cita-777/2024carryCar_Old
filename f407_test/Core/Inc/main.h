@@ -31,7 +31,8 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "math.h"
+#include "usart.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -63,6 +64,17 @@ void Error_Handler(void);
 #define imu_uartA3_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
+#define Pi 3.1415916f
+
+//FDILINK上位机通讯心跳包长度
+#define RESERVE_LEN 25
+
+//不同数据包长度
+#define MSG_SYS_STATE_LEN 	102
+#define MSG_EULER_ORIEN_LEN 20
+
+//确定最短长度
+#define DATA_LEN(required_len) (required_len > RESERVE_LEN)? required_len:RESERVE_LEN
 
 /* USER CODE END Private defines */
 

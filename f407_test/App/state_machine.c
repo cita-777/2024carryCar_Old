@@ -3,7 +3,7 @@
 #include "imu.h"
 #include "pi_controller.h"
 #include "usart.h"
-#include <stdio.h>
+
 
 extern UART_HandleTypeDef huart1;
 
@@ -33,15 +33,17 @@ void StateMachine_Update(void)
     {
         case STATE_IDLE:
             // 空闲状态处理
+				    printf("case IDEL \r\n");
             break;
 
         case STATE_MOVE_LINEAR:
             // 获取Yaw轴数据
-            yaw = IMU_GetYaw();
-
+            //yaw = IMU_GetYaw();
+            // 空闲状态处理
+				    printf("case LINEAR \r\n");
             // 使用PI控制器修正直线运动
             correction = PI_Controller_Update(&piController, yaw);
-
+						Motor_Move_Linear();
             // 调整电机速度以修正方向
             // Motor_Custom_Move(1, 0, 1000 + correction, 100, 20000, 0, 1);
             // Motor_Custom_Move(2, 1, 1000 - correction, 100, 20000, 0, 1);

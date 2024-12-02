@@ -37,10 +37,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         // 重新启动接收中断
         HAL_UART_Receive_IT(&huart1, (uint8_t *)&rxCmd[rxCount], 1);
     }
-    else if (huart->Instance == USART2)
-    {
-        IMU_UART_RxCpltCallback(huart);
-    }
+//    else if (huart->Instance == USART2)
+//    {
+//        IMU_UART_RxCpltCallback(huart);
+//    }
 }
 
 /**
