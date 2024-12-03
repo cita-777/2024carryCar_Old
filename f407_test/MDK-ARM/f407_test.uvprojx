@@ -532,31 +532,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>APP</GroupName>
-          <Files>
-            <File>
-              <FileName>pi_controller.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\App\pi_controller.c</FilePath>
-            </File>
-            <File>
-              <FileName>state_machine.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\App\state_machine.c</FilePath>
-            </File>
-            <File>
-              <FileName>pi_controller.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\App\pi_controller.h</FilePath>
-            </File>
-            <File>
-              <FileName>state_machine.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\App\state_machine.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>BSP</GroupName>
           <Files>
             <File>
@@ -633,6 +608,41 @@
               <FileName>Delay.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\System\Delay.h</FilePath>
+            </File>
+            <File>
+              <FileName>usr_tim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\usr_tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>usr_tim.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\System\usr_tim.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>APP</GroupName>
+          <Files>
+            <File>
+              <FileName>pi_controller.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\pi_controller.c</FilePath>
+            </File>
+            <File>
+              <FileName>pi_controller.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\APP\pi_controller.h</FilePath>
+            </File>
+            <File>
+              <FileName>state_machine.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\state_machine.c</FilePath>
+            </File>
+            <File>
+              <FileName>state_machine.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\APP\state_machine.h</FilePath>
             </File>
           </Files>
         </Group>

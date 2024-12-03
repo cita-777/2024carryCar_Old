@@ -1,7 +1,7 @@
 #include "imu.h"
 
 //结构体定义
-MSG_EULER_ORIEN MEO_Struct;
+ MSG_EULER_ORIEN MEO_Struct;
 
 //串口空闲中断回调函数
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
@@ -19,7 +19,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 			{
 				//printf(" imu data process successful!\r\n");
 				MEO_PacketDec(MEO_Data, &MEO_Struct);//解码储存
-         printf("Yaw Angle: %f\n", MEO_Struct.Heading);
+         //printf("Yaw Angle: %f\n", MEO_Struct.Heading);
 			}
 		}
 	}

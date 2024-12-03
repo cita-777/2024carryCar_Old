@@ -60,6 +60,7 @@ uint8_t MSG_EULER_ORIEN_Buf[DATA_LEN(MSG_EULER_ORIEN_LEN)];
 
 //储存数据数组
 uint8_t MEO_Data[MSG_EULER_ORIEN_LEN];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -104,12 +105,13 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_TIM6_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_UARTEx_ReceiveToIdle_DMA(&huart2,(uint8_t *)MSG_EULER_ORIEN_Buf, sizeof(MSG_EULER_ORIEN_Buf));
   // 初始化电机
   Motor_Init();
-	//Motor_Move_Linear();
-  //StateMachine_Init();
+	Motor_Move_Linear();
+  StateMachine_Init();
 
 
   // 启动TIM6定时器
@@ -127,18 +129,18 @@ int main(void)
   // Motor_Custom_Move(1, 0, 1000, 100, 20000, 0, 1);
 
   /* USER CODE END 2 */
-while(1){
+
   /* Infinite loop */
+	while(1){
   /* USER CODE BEGIN WHILE */
     HAL_Delay(500);
-    float yaw = GetYawAngle();
-    printf("Yaw Angle: %f\n", yaw);
+
     HAL_UART_Transmit(&huart1, (uint8_t *)"hello 1!\r\n", 16, 0xffff);
     HAL_Delay(500); // 延时1s
-    //StateMachine_Update();
+    StateMachine_Update();
     HAL_Delay(500);
     /* USER CODE END WHILE */
-}
+	}
     /* USER CODE BEGIN 3 */
   /* USER CODE END 3 */
 }

@@ -43,13 +43,14 @@ void Motor_Home(void)
  */
 void Motor_Move_Linear(void)
 {
-    Emm_V5_Pos_Control(1, 1, 101, 150, 10000, 0, 1);
     HAL_Delay(20);
-    Emm_V5_Pos_Control(2, 1, 101, 150, 10000, 0, 1);
+    Emm_V5_Pos_Control(1, 1, 230, 165, 30000, 0, 1);
     HAL_Delay(20);
-    Emm_V5_Pos_Control(3, 1, 101, 150, 10000, 0, 1);
+    Emm_V5_Pos_Control(2, 1, 201, 150, 30000, 0, 1);
     HAL_Delay(20);
-    Emm_V5_Pos_Control(4, 1, 101, 150, 10000, 0, 1);
+    Emm_V5_Pos_Control(3, 0, 201, 150, 30000, 0, 1);
+    HAL_Delay(20);
+    Emm_V5_Pos_Control(4, 0, 230, 165, 30000, 0, 1);
     HAL_Delay(20);
     Emm_V5_Synchronous_motion(0);
 }

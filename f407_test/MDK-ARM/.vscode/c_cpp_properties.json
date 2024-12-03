@@ -14,7 +14,8 @@
                 "d:\\Desktop\\物流车git仓库\\f407_test\\System",
                 "d:\\Desktop\\物流车git仓库\\f407_test\\MDK-ARM",
                 "d:\\Desktop\\物流车git仓库\\f407_test\\Drivers\\STM32F4xx_HAL_Driver\\Src",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\Core\\Src"
+                "d:\\Desktop\\物流车git仓库\\f407_test\\Core\\Src",
+                "d:\\Desktop\\物流车git仓库\\f407_test\\APP"
             ],
             "defines": [
                 "USE_HAL_DRIVER",
