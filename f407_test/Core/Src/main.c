@@ -26,10 +26,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "debug_mode.h"
-#include "usart_api.h"
 #include "motor_ctrl.h"
 #include "imu.h"
-#include "state_machine.h"
+#include "staMachine.h"
+#include "jetson.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -60,7 +60,8 @@ uint8_t MSG_EULER_ORIEN_Buf[DATA_LEN(MSG_EULER_ORIEN_LEN)];
 
 //储存数据数组
 uint8_t MEO_Data[MSG_EULER_ORIEN_LEN];
-
+extern MSG_EULER_ORIEN MEO_Struct;
+uint8_t stop=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -79,70 +80,82 @@ void SystemClock_Config(void);
 int main(void)
 {
 
-  /* USER CODE BEGIN 1 */
+    /* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
+    /* USER CODE END 1 */
 
-  /* MCU Configuration--------------------------------------------------------*/
+    /* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    HAL_Init();
 
-  /* USER CODE BEGIN Init */
+    /* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
+    /* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
+    /* Configure the system clock */
+    SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+    /* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
+    /* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_USART1_UART_Init();
-  MX_USART2_UART_Init();
-  MX_TIM6_Init();
-  MX_USART3_UART_Init();
-  /* USER CODE BEGIN 2 */
-  HAL_UARTEx_ReceiveToIdle_DMA(&huart2,(uint8_t *)MSG_EULER_ORIEN_Buf, sizeof(MSG_EULER_ORIEN_Buf));
-  // 初始化电机
-  Motor_Init();
-	Motor_Move_Linear();
-  StateMachine_Init();
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_DMA_Init();
+    MX_USART1_UART_Init();
+    MX_USART2_UART_Init();
+    MX_TIM6_Init();
+    MX_USART3_UART_Init();
+    MX_UART5_Init();
+    /* USER CODE BEGIN 2 */
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart2, (uint8_t *)MSG_EULER_ORIEN_Buf, sizeof(MSG_EULER_ORIEN_Buf));
+    // 初始化电机
+    Motor_Init();
+    Motor_Enable_All();
+    Jetson_Init();
+    //Car_Go(90,1000,10000,250);
+    //Car_Go_Target(10000,0,200,150);
+    Delay_ms(13000);
 
 
-  // 启动TIM6定时器
-  HAL_TIM_Base_Start_IT(&htim6);
+    //StateMachine_Init();
 
-  // HAL_Delay(8000);
-  //  旋转运动
-  //  Motor_turnLeft_rotate();
 
-  // HAL_Delay(8000);
-  // 停止运动
-  // Motor_Stop();
+    // 启动TIM6定时器
+    HAL_TIM_Base_Start_IT(&htim6);
 
-  // 自定义运动
-  // Motor_Custom_Move(1, 0, 1000, 100, 20000, 0, 1);
+    /* USER CODE END 2 */
 
-  /* USER CODE END 2 */
+    /* Infinite loop */
+    /* USER CODE BEGIN WHILE */
+    while (1)
+    {
+        //Delay_ms(5);
+        //Jetson_Send();
+        //HAL_UART_Transmit(&huart5, (uint8_t *)"hello 1!\r\n", 16, 0xffff);
+        //printf("turn right \r\n");
+        //printf("Yaw Angle: %f\n", MEO_Struct.Heading);
+        //        if (stop==0&&Car_Turn(90, 200, 250))
+        //        {
+        //            //printf("turn right \r\n");
+        //            stop=1;
+        //        }
 
-  /* Infinite loop */
-	while(1){
-  /* USER CODE BEGIN WHILE */
-    HAL_Delay(500);
+        //        if (stop==1)
+        //        {
+        //            //printf("turn successful! \r\n");
+        //            Car_Go(0, 0, 0, 0);
+        //        }
 
-    HAL_UART_Transmit(&huart1, (uint8_t *)"hello 1!\r\n", 16, 0xffff);
-    HAL_Delay(500); // 延时1s
-    StateMachine_Update();
-    HAL_Delay(500);
+        //HAL_UART_Transmit(&huart1, (uint8_t *)"hello 1!\r\n", 16, 0xffff);
+        //StateMachine_Update();
+    }
+
     /* USER CODE END WHILE */
-	}
+
     /* USER CODE BEGIN 3 */
-  /* USER CODE END 3 */
+    /* USER CODE END 3 */
 }
 
 /**
@@ -151,43 +164,44 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /** Configure the main internal regulator output voltage
-  */
-  __HAL_RCC_PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+    /** Configure the main internal regulator output voltage
+    */
+    __HAL_RCC_PWR_CLK_ENABLE();
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-  /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 168;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 4;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
+    /** Initializes the RCC Oscillators according to the specified parameters
+    * in the RCC_OscInitTypeDef structure.
+    */
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLM = 4;
+    RCC_OscInitStruct.PLL.PLLN = 168;
+    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+    RCC_OscInitStruct.PLL.PLLQ = 4;
 
-  /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV4;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
+        Error_Handler();
+    }
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
-  {
-    Error_Handler();
-  }
+    /** Initializes the CPU, AHB and APB buses clocks
+    */
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                                  |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV4;
+
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
+    {
+        Error_Handler();
+    }
 }
 
 /* USER CODE BEGIN 4 */
@@ -200,13 +214,15 @@ void SystemClock_Config(void)
   */
 void Error_Handler(void)
 {
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
-  /* USER CODE END Error_Handler_Debug */
+    /* USER CODE BEGIN Error_Handler_Debug */
+    /* User can add his own implementation to report the HAL error return state */
+    __disable_irq();
+
+    while (1)
+    {
+    }
+
+    /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT
@@ -219,9 +235,10 @@ void Error_Handler(void)
   */
 void assert_failed(uint8_t *file, uint32_t line)
 {
-  /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
+    /* USER CODE BEGIN 6 */
+    /* User can add his own implementation to report the file name and line number,
+       ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    /* USER CODE END 6 */
 }
+
 #endif /* USE_FULL_ASSERT */

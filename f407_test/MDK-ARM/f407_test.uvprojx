@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../App;../BSP;../Middleware;../System</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../BSP;../System;../APP</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -487,6 +487,51 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>APP</GroupName>
+          <Files>
+            <File>
+              <FileName>pi.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\APP\pi.h</FilePath>
+            </File>
+            <File>
+              <FileName>staMachine.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\staMachine.c</FilePath>
+            </File>
+            <File>
+              <FileName>staMachine.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\APP\staMachine.h</FilePath>
+            </File>
+            <File>
+              <FileName>ui.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\ui.c</FilePath>
+            </File>
+            <File>
+              <FileName>ui.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\APP\ui.h</FilePath>
+            </File>
+            <File>
+              <FileName>pi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\pi.c</FilePath>
+            </File>
+            <File>
+              <FileName>jetson.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\jetson.c</FilePath>
+            </File>
+            <File>
+              <FileName>jetson.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\APP\jetson.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>Application/User/Core</GroupName>
           <Files>
             <File>
@@ -535,6 +580,11 @@
           <GroupName>BSP</GroupName>
           <Files>
             <File>
+              <FileName>pi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\pi.c</FilePath>
+            </File>
+            <File>
               <FileName>imu.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\BSP\imu.c</FilePath>
@@ -554,40 +604,15 @@
               <FileType>5</FileType>
               <FilePath>..\BSP\motor_ctrl.h</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Middleware</GroupName>
-          <Files>
             <File>
-              <FileName>Emm_V5.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Middleware\Emm_V5.c</FilePath>
-            </File>
-            <File>
-              <FileName>fifo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Middleware\fifo.c</FilePath>
-            </File>
-            <File>
-              <FileName>usart_api.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Middleware\usart_api.c</FilePath>
-            </File>
-            <File>
-              <FileName>Emm_V5.h</FileName>
+              <FileName>tjc_usart_hmi.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Middleware\Emm_V5.h</FilePath>
+              <FilePath>..\BSP\tjc_usart_hmi.h</FilePath>
             </File>
             <File>
-              <FileName>fifo.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Middleware\fifo.h</FilePath>
-            </File>
-            <File>
-              <FileName>usart_api.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Middleware\usart_api.h</FilePath>
+              <FileName>tjc_usart_hmi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\tjc_usart_hmi.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -618,31 +643,6 @@
               <FileName>usr_tim.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\System\usr_tim.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>APP</GroupName>
-          <Files>
-            <File>
-              <FileName>pi_controller.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\APP\pi_controller.c</FilePath>
-            </File>
-            <File>
-              <FileName>pi_controller.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\APP\pi_controller.h</FilePath>
-            </File>
-            <File>
-              <FileName>state_machine.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\APP\state_machine.c</FilePath>
-            </File>
-            <File>
-              <FileName>state_machine.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\APP\state_machine.h</FilePath>
             </File>
           </Files>
         </Group>

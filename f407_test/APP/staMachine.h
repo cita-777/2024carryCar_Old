@@ -1,10 +1,14 @@
-#ifndef __STATE_MACHINE_H
-#define __STATE_MACHINE_H
+#ifndef __STAMACHINE_H
+#define __STAMACHINE_H
 
-#include "pi_controller.h"
+#include "pi.h"
 #include "stm32f4xx_hal.h"
 
-typedef enum {
+extern uint8_t ready_flag;
+
+
+typedef enum
+{
     STATE_IDLE,
     STATE_MOVE_LINEAR,
     STATE_ROTATE,
@@ -16,4 +20,4 @@ void StateMachine_Init(void);
 void StateMachine_SetState(State newState);
 void StateMachine_Update(void);
 
-#endif // __STATE_MACHINE_H
+#endif // __STAMACHINE_H

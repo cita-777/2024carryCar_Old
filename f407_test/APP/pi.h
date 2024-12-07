@@ -1,7 +1,8 @@
-#ifndef __PI_CONTROLLER_H
-#define __PI_CONTROLLER_H
+#ifndef __PI_H
+#define __PI_H
 
-typedef struct {
+typedef struct
+{
     float Kp;
     float Ki;
     float integral;

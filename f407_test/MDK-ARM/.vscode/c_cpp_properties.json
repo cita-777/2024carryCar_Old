@@ -8,14 +8,12 @@
                 "d:\\Desktop\\物流车git仓库\\f407_test\\Drivers\\STM32F4xx_HAL_Driver\\Inc\\Legacy",
                 "d:\\Desktop\\物流车git仓库\\f407_test\\Drivers\\CMSIS\\Device\\ST\\STM32F4xx\\Include",
                 "d:\\Desktop\\物流车git仓库\\f407_test\\Drivers\\CMSIS\\Include",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\App",
                 "d:\\Desktop\\物流车git仓库\\f407_test\\BSP",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\Middleware",
                 "d:\\Desktop\\物流车git仓库\\f407_test\\System",
+                "d:\\Desktop\\物流车git仓库\\f407_test\\APP",
                 "d:\\Desktop\\物流车git仓库\\f407_test\\MDK-ARM",
                 "d:\\Desktop\\物流车git仓库\\f407_test\\Drivers\\STM32F4xx_HAL_Driver\\Src",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\Core\\Src",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\APP"
+                "d:\\Desktop\\物流车git仓库\\f407_test\\Core\\Src"
             ],
             "defines": [
                 "USE_HAL_DRIVER",
