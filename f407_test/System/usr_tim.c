@@ -16,7 +16,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         if (Counter_Enable == 1)
         {
             Counter++;
-
+					//printf("Counter:%d\n",Counter);
+						 printf("t7.txt=\"%d\"\xff\xff\xff", Counter);
             if (Counter >= Counter_Times)
             {
                 Counter = 0;

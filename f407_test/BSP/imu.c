@@ -72,19 +72,26 @@ float DATA_Trans(uint8_t Data_1, uint8_t Data_2, uint8_t Data_3, uint8_t Data_4)
 //弧度转角度
 float RadtoDegree(float rads)
 {
-    Degree=rads * 180.0f / Pi;
+    // 将弧度转换为度数
+    float Degree = rads * 180.0f / Pi;
 
-    if (Degree - Last_Degree > 180)
-    {
-        Degree -= 360;
-    }
-    else if (Degree - Last_Degree < -180)
-    {
-        Degree += 360;
-    }
+//    // 处理度数跳变
+//    if (Degree - Last_Degree > 180)
+//    {
+//        Degree -= 360;
+//    }
+//    else if (Degree - Last_Degree < -180)
+//    {
+//        Degree += 360;
+//    }
 
-    Last_Degree = Degree;
-    Degree += Yaw_Compensate;
+//    // 更新上一次度数
+//    Last_Degree = Degree;
+
+    // 添加偏航补偿
+    //Degree += Yaw_Compensate;
+
+    // 返回处理后的度数
     return Degree;
 }
 
@@ -101,7 +108,7 @@ void MEO_PacketDec(uint8_t * Rx_Buffer, MSG_EULER_ORIEN * DecodedStruct)
     DecodedStruct->Heading  = RadtoDegree(DATA_Trans(Rx_Buffer[15], Rx_Buffer[16], Rx_Buffer[17], Rx_Buffer[18]));
 }
 
-float GetYawAngle(void)
-{
-    return MEO_Struct.Heading;
-}
+// float GetYawAngle(void)
+// {
+//     return MEO_Struct.Heading;
+// }

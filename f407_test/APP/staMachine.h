@@ -1,18 +1,18 @@
-#ifndef __STAMACHINE_H
-#define __STAMACHINE_H
+#ifndef __STAMACHINE_H__
+#define __STAMACHINE_H__
 
 #include "pi.h"
 #include "stm32f4xx_hal.h"
 
 extern uint8_t ready_flag;
 
-
 typedef enum
 {
     STATE_IDLE,
-    STATE_MOVE_LINEAR,
-    STATE_ROTATE,
-    STATE_STOP,
+    MOVE_TO_RAW,
+    MOVE_TO_ROUGH,
+    MOVE_TO_TEMPSTORE,
+    MOVE_TO_RAW_AGAIN,
     STATE_CUSTOM
 } State;
 

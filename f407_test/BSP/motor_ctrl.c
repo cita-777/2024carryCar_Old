@@ -240,9 +240,9 @@ void Motor_SetSpeed(uint8_t Motor_Num, int16_t Speed, uint8_t Acc)
     if (Motor_Num == 1 || Motor_Num == 4)
     {
         if (Speed >= 0)
-            Direction = 1;
-        else
             Direction = 0;
+        else
+            Direction = 1;
     }
     else
     {
@@ -433,12 +433,12 @@ void Car_Go(int16_t Angle, int16_t Speed, int32_t Distance, uint16_t Car_ACC)
 //    Motor_SetPosition(4, Motor_D_Pos, Speed, Car_ACC);
 
 //    Motor_Run();
-//}
+//}3200脉冲204.2035224833365605，，
 // 相对位置闭环  1mm = 7.835320275293308837脉冲
 void Car_Go_Target(int32_t Tar_X_mm, int32_t Tar_Y_mm, int16_t Speed, uint16_t Car_ACC)
 {
-    int32_t Tar_X = Tar_X_mm * 7.835320275293308837;
-    int32_t Tar_Y = Tar_Y_mm * 7.835320275293308837;
+    int32_t Tar_X = Tar_X_mm * 15.67064055058661768;
+    int32_t Tar_Y = Tar_Y_mm * 15.67064055058661768;
     int32_t V1, V2;
     V2 = Speed * My_ABS(Tar_Y - Tar_X) / (1.4 * sqrt(Tar_X * Tar_X + Tar_Y * Tar_Y));
     V1 = Speed * My_ABS(Tar_Y + Tar_X) / (1.4 * sqrt(Tar_X * Tar_X + Tar_Y * Tar_Y));
@@ -519,47 +519,44 @@ void Car_Clear(void)
 uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
 {
 #if Car_Turn_Use_IMU               // 结合IMU转向
-    static float Motor_Kp = 0.7; // 转向环KP
+    static float Motor_Kp = 1.0; // 转向环KP
     uint8_t ret = 0;
     static uint8_t Temp_State = 0;
     static uint8_t Stop_Counter = 0;
     static float Temp_Yaw = 0;
-    static float Last_Yaw = 0;
     //printf("Yaw Angle0: %f\n", MEO_Struct.Heading);
-    printf("t2.txt=\"%f\"\xff\xff\xff", MEO_Struct.Heading);
+    //printf("t2.txt=\"%f\"\xff\xff\xff", MEO_Struct.Heading);
 
     if (Temp_State == 0)//还没转弯，或者准备新转弯
     {
         Temp_State = 1;
-
-        if (Tar_Yaw >= 90 || Tar_Yaw <= -90)
-        {
-            Temp_Yaw = Last_Yaw + Tar_Yaw;
-            Last_Yaw += Tar_Yaw;
-        }
-        else
-        {
-            Temp_Yaw = MEO_Struct.Heading + Tar_Yaw;
-        }
+        Temp_Yaw = Tar_Yaw;
     }
     else if (Temp_State == 1)//当 Temp_State == 1 时，表示小车正在进行转弯
     {
         float Yaw_Error = MEO_Struct.Heading - Temp_Yaw;
+
+        // 调整 err_yaw 范围
+        if (Yaw_Error >= 180)
+            Yaw_Error -= 2 * 180;
+        else if (Yaw_Error <= -180)
+            Yaw_Error += 2 * 180;
+
         Yaw_Error *= Motor_Kp;
-        printf("t3.txt=\"%f\"\xff\xff\xff", Yaw_Error);
+        //printf("t3.txt=\"%f\"\xff\xff\xff", Yaw_Error);
 
         if (Yaw_Error > Speed_Limit)
             Yaw_Error = Speed_Limit;
         else if (Yaw_Error < -Speed_Limit)
             Yaw_Error = -Speed_Limit;
 
-        Motor_SetSpeed(1, Yaw_Error, Car_ACC);
+        Motor_SetSpeed(1, -Yaw_Error, Car_ACC);
         Motor_SetSpeed(2, Yaw_Error, Car_ACC);
         Motor_SetSpeed(3, Yaw_Error, Car_ACC);
-        Motor_SetSpeed(4, Yaw_Error, Car_ACC);
+        Motor_SetSpeed(4, -Yaw_Error, Car_ACC);
         Motor_Run();
 
-        if (MEO_Struct.Heading >= Temp_Yaw - 0.1 && MEO_Struct.Heading <= Temp_Yaw + 0.1)
+        if (MEO_Struct.Heading >= Temp_Yaw - 2 && MEO_Struct.Heading <= Temp_Yaw + 2)
             Stop_Counter++;
         else
             Stop_Counter = 0;
