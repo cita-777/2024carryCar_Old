@@ -4,6 +4,7 @@
 #include "usart.h"
 #include "Delay.h"
 #include "usr_tim.h"
+#include "servo.h"
 
 extern MSG_EULER_ORIEN MEO_Struct;
 

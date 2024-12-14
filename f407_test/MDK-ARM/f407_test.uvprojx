@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../BSP;../System;../APP</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../BSP;../System;../APP;..\MiddleWare</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -604,6 +604,16 @@
               <FileType>5</FileType>
               <FilePath>..\BSP\motor_ctrl.h</FilePath>
             </File>
+            <File>
+              <FileName>servo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\BSP\servo.h</FilePath>
+            </File>
+            <File>
+              <FileName>servo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\servo.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -633,6 +643,41 @@
               <FileName>usr_tim.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\System\usr_tim.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>MiddleWare</GroupName>
+          <Files>
+            <File>
+              <FileName>fashion_star_uart_servo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MiddleWare\fashion_star_uart_servo.c</FilePath>
+            </File>
+            <File>
+              <FileName>fashion_star_uart_servo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\MiddleWare\fashion_star_uart_servo.h</FilePath>
+            </File>
+            <File>
+              <FileName>ring_buffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MiddleWare\ring_buffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>ring_buffer.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\MiddleWare\ring_buffer.h</FilePath>
+            </File>
+            <File>
+              <FileName>user_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MiddleWare\user_uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>user_uart.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\MiddleWare\user_uart.h</FilePath>
             </File>
           </Files>
         </Group>
