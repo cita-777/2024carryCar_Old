@@ -13,7 +13,6 @@ extern uint8_t Stop_Flag_Car;
 extern uint16_t RxBuffer3[10];
 extern uint8_t Stop_Flag_HuaGui;
 extern uint16_t Motor_HuaGui_Current;
-extern MSG_EULER_ORIEN MEO_Struct;
 
 void Motor_Init(void);
 void Motor_Reset(uint8_t Motor_Num);

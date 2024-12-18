@@ -163,7 +163,22 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>uiRxCNT</ItemText>
+          <ItemText>Yaw_Error</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Temp_Yaw</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>YawAngle</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>temp_yawAngle</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -171,6 +186,11 @@
           <count>0</count>
           <WinNumber>2</WinNumber>
           <ItemText>uiRx</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>YawAngle</ItemText>
         </Ww>
       </WatchWindow2>
       <Tracepoint>

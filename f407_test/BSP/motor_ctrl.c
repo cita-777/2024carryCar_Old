@@ -5,6 +5,12 @@ uint8_t Send_Data[20];
 uint8_t Stop_Flag_Car = 1; // 小车停止标志位
 uint16_t RxBuffer3[10] = {0};
 uint16_t Motor_HuaGui_Current = 0;
+
+    static uint8_t Temp_State = 0;
+    static uint8_t Stop_Counter = 0;
+     float Temp_Yaw = 0.0f;
+float temp_yawAngle=0.0f;
+float Yaw_Error=-90.0f;
 /*
 ---------------------------------电机发送指令函数---------------------------------
 */
@@ -225,7 +231,8 @@ void Motor_Run(void)
     Send_Data[2] = 0x66;
     Send_Data[3] = 0x6B;
     HAL_UART_Transmit(&huart3, Send_Data, 4, 1000);
-    Delay_ms(10);
+    //Delay_ms(10);
+		Delay_us(1);
 }
 
 // Speed 单位RPM
@@ -259,7 +266,8 @@ void Motor_SetSpeed(uint8_t Motor_Num, int16_t Speed, uint8_t Acc)
     Send_Data[6] = 0x01;
     Send_Data[7] = 0x6B;
     HAL_UART_Transmit(&huart3, Send_Data, 8, 1000);
-    Delay_ms(10);
+    //Delay_ms(10);
+		Delay_us(1);
 }
 
 // Speed 单位RPM
@@ -519,31 +527,36 @@ void Car_Clear(void)
 uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
 {
 #if Car_Turn_Use_IMU               // 结合IMU转向
-    static float Motor_Kp = 1.0; // 转向环KP
+    static float Motor_Kp = 0.7f; // 转向环KP
     uint8_t ret = 0;
-    static uint8_t Temp_State = 0;
-    static uint8_t Stop_Counter = 0;
-    static float Temp_Yaw = 0;
-    //printf("Yaw Angle0: %f\n", MEO_Struct.Heading);
-    //printf("t2.txt=\"%f\"\xff\xff\xff", MEO_Struct.Heading);
+    Stop_Counter = 0;
+	if(YawAngle!=0)
+	{
+	temp_yawAngle=YawAngle;
+	}
+    //printf("Yaw Angle0: %f\n", YawAngle);
+    //printf("t2.txt=\"%f\"\xff\xff\xff", YawAngle);
 
     if (Temp_State == 0)//还没转弯，或者准备新转弯
     {
-        Temp_State = 1;
-        Temp_Yaw = Tar_Yaw;
+            Temp_State = 1;
+
+                  Temp_Yaw =Tar_Yaw;
     }
     else if (Temp_State == 1)//当 Temp_State == 1 时，表示小车正在进行转弯
     {
-        float Yaw_Error = MEO_Struct.Heading - Temp_Yaw;
-
+    //printf("t2.txt=\"%f\"\xff\xff\xff", temp_yawAngle);
+         Yaw_Error= temp_yawAngle - Temp_Yaw;
+				//if((YawAngle>=330&&YawAngle<=350)||YawAngle>=10) return 1;
+        //printf("t3.txt=\"%f\"\xff\xff\xff", Yaw_Error);
         // 调整 err_yaw 范围
-        if (Yaw_Error >= 180)
-            Yaw_Error -= 2 * 180;
-        else if (Yaw_Error <= -180)
-            Yaw_Error += 2 * 180;
+        if (Yaw_Error >= 180.0f)
+            Yaw_Error -= 360.0f;
+        else if (Yaw_Error <= -180.0f)
+            Yaw_Error += 360.0f;
 
         Yaw_Error *= Motor_Kp;
-        //printf("t3.txt=\"%f\"\xff\xff\xff", Yaw_Error);
+//printf("t3.txt=\"%f\"\xff\xff\xff", Yaw_Error);
 
         if (Yaw_Error > Speed_Limit)
             Yaw_Error = Speed_Limit;
@@ -556,7 +569,7 @@ uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
         Motor_SetSpeed(4, -Yaw_Error, Car_ACC);
         Motor_Run();
 
-        if (MEO_Struct.Heading >= Temp_Yaw - 2 && MEO_Struct.Heading <= Temp_Yaw + 2)
+        if (YawAngle >= Temp_Yaw - 1 && YawAngle <= Temp_Yaw + 1)
             Stop_Counter++;
         else
             Stop_Counter = 0;
@@ -620,7 +633,7 @@ uint8_t Car_Calibration(uint16_t Speed_Limit, uint16_t Car_ACC)
     if (Temp_State == 0)
     {
         Temp_State++;
-        Temp_Yaw = MEO_Struct.Heading;
+        Temp_Yaw = YawAngle;
     }
     else if (Temp_State == 1)
     {
