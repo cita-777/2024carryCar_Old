@@ -5,12 +5,6 @@ uint8_t Send_Data[20];
 uint8_t Stop_Flag_Car = 1; // 小车停止标志位
 uint16_t RxBuffer3[10] = {0};
 uint16_t Motor_HuaGui_Current = 0;
-
-    static uint8_t Temp_State = 0;
-    static uint8_t Stop_Counter = 0;
-     float Temp_Yaw = 0.0f;
-float temp_yawAngle=0.0f;
-float Yaw_Error=-90.0f;
 /*
 ---------------------------------电机发送指令函数---------------------------------
 */
@@ -32,13 +26,13 @@ void Motor_Receive_Data(uint8_t com_data)
     // 如果状态机是0（初始状态），并且接收到数据包的开始标志
     if (RxState == 0 && (com_data == 0x01 || com_data == 0x05))
     {
-        RxState = 1;          // 进入接收状态1
-        RxBuffer3[RxCounter1++] = com_data;  // 将接收到的数据存储在接收缓冲区
+        RxState = 1;                        // 进入接收状态1
+        RxBuffer3[RxCounter1++] = com_data; // 将接收到的数据存储在接收缓冲区
     }
     // 如果状态机是1，接收数据
     else if (RxState == 1)
     {
-        RxBuffer3[RxCounter1++] = com_data;  // 存储接收到的数据
+        RxBuffer3[RxCounter1++] = com_data; // 存储接收到的数据
 
         // 判断接收的字节数是否达到10个，或者接收到结束标志（0x6B）
         if (RxCounter1 >= 10 || com_data == 0x6B)
@@ -99,8 +93,8 @@ void Motor_Receive_Data(uint8_t com_data)
         }
         else // 如果接收到的最后一个字节不是结束标志0x6B，接收失败
         {
-            RxState = 0;        // 重置状态机
-            RxCounter1 = 0;     // 重置接收计数器
+            RxState = 0;       // 重置状态机
+            RxCounter1 = 0;    // 重置接收计数器
             Stop_Flag_Car = 2; // 设置接收错误标志
 
             for (i = 0; i < 10; i++)
@@ -231,8 +225,8 @@ void Motor_Run(void)
     Send_Data[2] = 0x66;
     Send_Data[3] = 0x6B;
     HAL_UART_Transmit(&huart3, Send_Data, 4, 1000);
-    //Delay_ms(10);
-		Delay_us(1);
+    // Delay_ms(10);
+    Delay_us(1);
 }
 
 // Speed 单位RPM
@@ -266,8 +260,8 @@ void Motor_SetSpeed(uint8_t Motor_Num, int16_t Speed, uint8_t Acc)
     Send_Data[6] = 0x01;
     Send_Data[7] = 0x6B;
     HAL_UART_Transmit(&huart3, Send_Data, 8, 1000);
-    //Delay_ms(10);
-		Delay_us(1);
+    // Delay_ms(10);
+    Delay_us(1);
 }
 
 // Speed 单位RPM
@@ -316,7 +310,7 @@ void Motor_SetPosition(uint8_t Motor_Num, uint32_t Pulse, int16_t Speed, uint8_t
         Stop_Flag_Car = 0;
     }
 
-    Delay_ms(10);
+    Delay_us(1);
 }
 
 // Speed 单位RPM
@@ -423,9 +417,9 @@ void Car_Go(int16_t Angle, int16_t Speed, int32_t Distance, uint16_t Car_ACC)
 }
 
 // 相对位置闭环 12800脉冲---4圈---1米
-//Yaw为角度,其他单位为米，速度和加速度电机默认的单位rpm
-//Wheel_axlespacing 为小车(前后)轴距的二分之一，Wheel_spacing 为小车(左右)轮距的二分之一。
-//void Car_Go_Target(int32_t Tar_X, int32_t Tar_Y, int32_t Tar_Yaw, int16_t Speed, uint16_t Car_ACC)
+// Yaw为角度,其他单位为米，速度和加速度电机默认的单位rpm
+// Wheel_axlespacing 为小车(前后)轴距的二分之一，Wheel_spacing 为小车(左右)轮距的二分之一。
+// void Car_Go_Target(int32_t Tar_X, int32_t Tar_Y, int32_t Tar_Yaw, int16_t Speed, uint16_t Car_ACC)
 //{
 //    float Wheel_axlespacing=0.09;//前后
 //    float Wheel_spacing=0.12692;  //左右
@@ -526,37 +520,43 @@ void Car_Clear(void)
 // 小车转弯
 uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
 {
-#if Car_Turn_Use_IMU               // 结合IMU转向
+#if Car_Turn_Use_IMU // 结合IMU转向
+    IMU_Data_Proc();
+    static uint8_t Temp_State = 0;
+    static uint8_t Stop_Counter = 0;
+    static float Temp_Target_Yaw = 0.0f;
+    static float cal_YawAngle = 0.0f;
+    static float Yaw_Error = 0.0f;
     static float Motor_Kp = 0.7f; // 转向环KP
     uint8_t ret = 0;
-    Stop_Counter = 0;
-	if(YawAngle!=0)
-	{
-	temp_yawAngle=YawAngle;
-	}
-    //printf("Yaw Angle0: %f\n", YawAngle);
-    //printf("t2.txt=\"%f\"\xff\xff\xff", YawAngle);
 
-    if (Temp_State == 0)//还没转弯，或者准备新转弯
+    if (YawAngle != 0)
     {
-            Temp_State = 1;
-
-                  Temp_Yaw =Tar_Yaw;
+        cal_YawAngle = YawAngle;
     }
-    else if (Temp_State == 1)//当 Temp_State == 1 时，表示小车正在进行转弯
+    // printf("Yaw Angle0: %f\n", YawAngle);
+    // printf("t2.txt=\"%f\"\xff\xff\xff", YawAngle);
+
+    if (Temp_State == 0) // 还没转弯，或者准备新转弯
     {
-    //printf("t2.txt=\"%f\"\xff\xff\xff", temp_yawAngle);
-         Yaw_Error= temp_yawAngle - Temp_Yaw;
-				//if((YawAngle>=330&&YawAngle<=350)||YawAngle>=10) return 1;
-        //printf("t3.txt=\"%f\"\xff\xff\xff", Yaw_Error);
-        // 调整 err_yaw 范围
+        Temp_State = 1;
+        Temp_Target_Yaw = Tar_Yaw;
+    }
+
+    else if (Temp_State == 1) // 当 Temp_State == 1 时，表示小车正在进行转弯
+    {
+        // printf("t2.txt=\"%f\"\xff\xff\xff", cal_YawAngle);
+        Yaw_Error = cal_YawAngle - Temp_Target_Yaw;
+        // if((YawAngle>=330&&YawAngle<=350)||YawAngle>=10) return 1;
+        // printf("t3.txt=\"%f\"\xff\xff\xff", Yaw_Error);
+        //  调整 err_yaw 范围
         if (Yaw_Error >= 180.0f)
             Yaw_Error -= 360.0f;
         else if (Yaw_Error <= -180.0f)
             Yaw_Error += 360.0f;
 
         Yaw_Error *= Motor_Kp;
-//printf("t3.txt=\"%f\"\xff\xff\xff", Yaw_Error);
+        // printf("t3.txt=\"%f\"\xff\xff\xff", Yaw_Error);
 
         if (Yaw_Error > Speed_Limit)
             Yaw_Error = Speed_Limit;
@@ -569,22 +569,21 @@ uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
         Motor_SetSpeed(4, -Yaw_Error, Car_ACC);
         Motor_Run();
 
-        if (YawAngle >= Temp_Yaw - 1 && YawAngle <= Temp_Yaw + 1)
+        if (cal_YawAngle >= Temp_Target_Yaw - 2 && cal_YawAngle <= Temp_Target_Yaw + 2)
             Stop_Counter++;
         else
             Stop_Counter = 0;
 
-        if (Stop_Counter >= 10)
+        if (Stop_Counter >= 3)
         {
             Stop_Counter = 0;
             ret = 1;
             Temp_State = 0;
         }
     }
-
     return ret;
 #endif
-#if Car_Turn_Use_IMU == 0        // 不结合IMU转向
+#if Car_Turn_Use_IMU == 0       // 不结合IMU转向
     static float Alpha = 450.8; // Alpha 46.8
     uint8_t ret = 0;
     static uint8_t Temp_State = 0;
@@ -627,68 +626,45 @@ uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
 uint8_t Car_Calibration(uint16_t Speed_Limit, uint16_t Car_ACC)
 {
     static uint8_t Temp_State = 0;
-    static float Temp_Yaw = 0;
+    static float Temp_Target_Cal_Angle = 0;
+    static float cal_YawAngle = 0.0f;
     uint8_t ret = 0;
-
-    if (Temp_State == 0)
+    if (YawAngle != 0)
+    {
+        cal_YawAngle = YawAngle;
+    }
+    if (Temp_State == 0)//还没开始校准
     {
         Temp_State++;
-        Temp_Yaw = YawAngle;
+        Temp_Target_Cal_Angle = cal_YawAngle;
     }
-    else if (Temp_State == 1)
+    else if (Temp_State == 1)//正在校准中
     {
         uint8_t temp = 0;
 
-        if (Temp_Yaw <= 10 && Temp_Yaw >= -10)
+        if (Temp_Target_Cal_Angle <= 10 || (Temp_Target_Cal_Angle >= 350 && Temp_Target_Cal_Angle <= 360))
         {
-            temp = Car_Turn(-Temp_Yaw, Speed_Limit, Car_ACC);
+            temp = Car_Turn(0,Speed_Limit, Car_ACC);
         }
 
-        if (Temp_Yaw <= 95 && Temp_Yaw >= 85)
+        if (Temp_Target_Cal_Angle <= 95 && Temp_Target_Cal_Angle >= 85)
         {
-            temp = Car_Turn(-Temp_Yaw + 90, Speed_Limit, Car_ACC);
+            temp = Car_Turn(90, Speed_Limit, Car_ACC);
         }
-
-        if (Temp_Yaw <= -85 && Temp_Yaw >= -95)
+        if (Temp_Target_Cal_Angle <= 185 && Temp_Target_Cal_Angle >= 175)
         {
-            temp = Car_Turn(-Temp_Yaw - 90, Speed_Limit, Car_ACC);
+            temp = Car_Turn(180, Speed_Limit, Car_ACC);
         }
-
-        if (Temp_Yaw <= 185 && Temp_Yaw >= 175)
+        if (Temp_Target_Cal_Angle <= 275 && Temp_Target_Cal_Angle >= 265)
         {
-            temp = Car_Turn(-Temp_Yaw + 180, Speed_Limit, Car_ACC);
-        }
-
-        if (Temp_Yaw <= -175 && Temp_Yaw >= -185)
-        {
-            temp = Car_Turn(-Temp_Yaw - 180, Speed_Limit, Car_ACC);
-        }
-
-        if (Temp_Yaw <= 275 && Temp_Yaw >= 265)
-        {
-            temp = Car_Turn(-Temp_Yaw + 270, Speed_Limit, Car_ACC);
-        }
-
-        if (Temp_Yaw <= -265 && Temp_Yaw >= -275)
-        {
-            temp = Car_Turn(-Temp_Yaw - 270, Speed_Limit, Car_ACC);
-        }
-
-        if (Temp_Yaw <= 365 && Temp_Yaw >= 355)
-        {
-            temp = Car_Turn(-Temp_Yaw + 360, Speed_Limit, Car_ACC);
-        }
-
-        if (Temp_Yaw <= -355 && Temp_Yaw >= -365)
-        {
-            temp = Car_Turn(-Temp_Yaw - 360, Speed_Limit, Car_ACC);
+            temp = Car_Turn(270, Speed_Limit, Car_ACC);
         }
 
         if (temp == 1)
         {
             ret = 1;
             Temp_State = 0;
-            Temp_Yaw = 0;
+            Temp_Target_Cal_Angle = 0;
         }
     }
 
@@ -766,4 +742,3 @@ void HuaGui_ZhuanPan(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc)
     Motor_SetPosition_A(5, Motor_HuaGui_Pulse_ZhuanPan, Motor_HuaGui_Speed, Motor_HuaGui_Acc);
     Motor_Run();
 }
-

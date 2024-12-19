@@ -163,12 +163,12 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Yaw_Error</ItemText>
+          <ItemText>running_flag,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Temp_Yaw</ItemText>
+          <ItemText>is_turning,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
@@ -178,7 +178,7 @@
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>temp_yawAngle</ItemText>
+          <ItemText>ret,0x0A</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -190,7 +190,7 @@
         <Ww>
           <count>1</count>
           <WinNumber>2</WinNumber>
-          <ItemText>YawAngle</ItemText>
+          <ItemText>Car_Turn,0x10</ItemText>
         </Ww>
       </WatchWindow2>
       <Tracepoint>
@@ -199,7 +199,7 @@
       <DebugFlag>
         <trace>0</trace>
         <periodic>1</periodic>
-        <aLwin>1</aLwin>
+        <aLwin>0</aLwin>
         <aCover>0</aCover>
         <aSer1>0</aSer1>
         <aSer2>0</aSer2>

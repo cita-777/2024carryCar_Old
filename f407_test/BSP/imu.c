@@ -27,17 +27,7 @@ void IMU_Data_Proc(void)
 {
     if (End_flag == 1)
     {
-        // 提取原始顺时针角度
-        raw_YawAngle = (float)((DMA_buf[18] << 8) | DMA_buf[17]) / 32768 * 180;
 
-        // 顺时针 0-360 转换为逆时针 0-30-180-360-0
-        YawAngle = 360.0f - raw_YawAngle;
-
-        // 特殊处理：将 360 转换为 0
-        if (YawAngle >= 360.0f)
-        {
-            YawAngle = 0.0f;
-        }
 				
 //				if((temp_YawAngle-last_YawAngle)<10||(temp_YawAngle-last_YawAngle)>350)
 //				{
@@ -51,9 +41,20 @@ void IMU_Data_Proc(void)
 //				
 //				last_YawAngle=YawAngle;
         // 校验和
-        if (DMA_buf[21] != (uint8_t)(0x55 + 0x53 + DMA_buf[17] + DMA_buf[18] + DMA_buf[19] + DMA_buf[20]))
+        if (DMA_buf[21] == (uint8_t)(0x55 + 0x53 + DMA_buf[17] + DMA_buf[18] + DMA_buf[19] + DMA_buf[20]))
         {
             printf("ERROR!\r\n");
+					        // 提取原始顺时针角度
+        raw_YawAngle = (float)((DMA_buf[18] << 8) | DMA_buf[17]) / 32768 * 180;
+
+        // 顺时针 0-360 转换为逆时针 0-30-180-360-0
+        YawAngle = 360.0f - raw_YawAngle;
+
+        // 特殊处理：将 360 转换为 0
+        if (YawAngle >= 360.0f)
+        {
+            YawAngle = 0.0f;
+        }
         }
 
         //printf("t2.txt=\"%f\"\xff\xff\xff", YawAngle);

@@ -130,7 +130,7 @@ int main(void)
     //Delay_ms(13000);
     //Car_Go_Target(-75, 75, 200, 150);
 
-    //StateMachine_Init();
+    StateMachine_Init();
 
     // Æô¶¯TIM6¶¨Ê±Æ÷
     HAL_TIM_Base_Start_IT(&htim6);
@@ -165,6 +165,7 @@ int main(void)
         //HAL_UART_Transmit(&huart1, (uint8_t *)"hello 1!\r\n", 16, 0xffff);
         //IMU_Data_Proc();
         StateMachine_Update();
+				
     }
 
     /* USER CODE END WHILE */

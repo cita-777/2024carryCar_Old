@@ -26,13 +26,13 @@ void StateMachine_Update(void)
     switch (currentState)
     {
     case STATE_IDLE:
-			Car_Go_Target(0, 0, 0, 0);
-		                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-		                printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
+        Car_Go_Target(0, 0, 0, 0);
+        printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+        printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
         if (ready_flag == 1)
         {
             Delay_ms(2000);
-            StateMachine_SetState(MOVE_TO_ROUGH);
+            StateMachine_SetState(MOVE_TO_RAW);
             ready_flag = 0;
         }
         // printf("%f\r\n",YawAngle);
@@ -45,29 +45,27 @@ void StateMachine_Update(void)
             switch (running_flag)
             {
             case 0: // 出门
+                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
                 Counter_Times = 200;
                 Counter_Enable = 1;
-                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-                Car_Go_Target(-115, 0, 200, 200);
-                printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
+                Car_Go_Target(-150, 0, 200, 150);
                 running_flag++;
                 break;
 
             case 1: // y方向直行1450mm
-                Counter_Times = 500;
-                Counter_Enable = 1;
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                Counter_Times = 400;
+                Counter_Enable = 1;
                 Car_Go_Target(0, 1450, 300, 150);
-                printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
                 running_flag++;
                 break;
 
             case 2: // x轴方向走50mm贴近物料
-                Counter_Times = 200;
-                Counter_Enable = 1;
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                Counter_Times = 80;
+                Counter_Enable = 1;
                 Car_Go_Target(50, 0, 200, 150);
-                printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
                 running_flag++;
                 break;
             case 3: // 第三次行动完成，进入下一个状态
@@ -84,68 +82,66 @@ void StateMachine_Update(void)
             switch (running_flag)
             {
             case 0: // x轴回退50mm
-                Counter_Times = 200;
-                Counter_Enable = 1;
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                Counter_Times = 80;
+                Counter_Enable = 1;
                 Car_Go_Target(-50, 0, 200, 150);
-                printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
+
                 running_flag++;
                 break;
 
             case 1: // y方向回退400mm
-                Counter_Times = 300;
-                Counter_Enable = 1;
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-                //Car_Go_Target(0, -400, 200, 150);
-						Car_Go_Target(0, -40, 200, 150);
-                printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
+                Counter_Times = 200;
+                Counter_Enable = 1;
+                Car_Go_Target(0, -400, 300, 150);
                 running_flag++;
                 break;
 
             case 2: // 原地旋转向右90度调整滑轨方向即x轴方向
-                Counter_Times = 2000;
-                Counter_Enable = 1;
+                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 is_turning = 1;
-                //printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-                while(!Car_Turn(90, 200, 200))
-								{
-									IMU_Data_Proc();
-								};
-                //printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
-//                if (Counter_Enable == 0)
-//                {
-//                    is_turning = 0;
-//                    running_flag++;
-//                }
-						running_flag++;
+                if (is_turning == 1 && Car_Turn(90, 200, 150))
+                {
+                    is_turning = 0;
+                }
+                if (!is_turning)
+                    running_flag++;
                 break;
 
             case 3: // y轴方向走-1720mm
-                //Counter_Times = 860;
-						                Counter_Times = 100;
-                Counter_Enable = 1;
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-                Car_Go_Target(0, -20, 250, 150);
-                printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
+                Counter_Times = 900;
+                Counter_Enable = 1;
+                Car_Go_Target(0, -1720, 400, 130);
                 running_flag++;
                 break;
 
-            case 4: // 原地旋转向右90度调整滑轨方向即x轴方向
-                Counter_Times = 1300;
-                Counter_Enable = 1;
+             case 4: // 原地旋转向右90度调整滑轨方向即x轴方向
+                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                 is_turning = 1;
+                 if (is_turning == 1 && Car_Turn(180, 200, 200))
+                 {
+                    is_turning = 0;
+                 }
+                if (!is_turning)
+                     running_flag++;
+                 break;
+            case 5: // 第三次行动完成，进入下一个状态
+                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 is_turning = 1;
-                //printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-                Car_Turn(180, 200, 200);
-                //printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
-                if (Counter_Enable == 0)
+                if (is_turning == 1 && Car_Calibration(200, 200))
                 {
                     is_turning = 0;
-                    running_flag++;
                 }
-                break;
-            case 5: // 第三次行动完成，进入下一个状态
-                running_flag = 0;
-                StateMachine_SetState(STATE_IDLE);
+                if (!is_turning)
+                {
+                    running_flag = 0;
+                    StateMachine_SetState(MOVE_TO_TEMPSTORE);
+                }
+								
+//						 running_flag = 0;
+//						StateMachine_SetState(MOVE_TO_TEMPSTORE);
                 break;
             }
         }
@@ -156,40 +152,44 @@ void StateMachine_Update(void)
             switch (running_flag)
             {
             case 0: // y方向回退825mm
-                Counter_Times = 500;
-                Counter_Enable = 1;
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-                Car_Go_Target(0, -825, 250, 150);
                 printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
-
+                Counter_Times = 350;
+                Counter_Enable = 1;
+                Car_Go_Target(0, -875, 300, 150);
                 running_flag++;
                 break;
 
             case 1: // 原地向右旋转90度调整滑轨方向即x轴方向
-                Counter_Times = 700;
-                Counter_Enable = 1;
-                is_turning = 1;
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-                Car_Turn(90, 70, 250);
-                printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
-                if (Counter_Enable == 0)
+                is_turning = 1;
+                if (is_turning == 1 && Car_Turn(270, 200, 200))
                 {
                     is_turning = 0;
-                    running_flag++;
                 }
+                if (!is_turning)
+                    running_flag++;
                 break;
 
             case 2: // y轴方向走-860mm
-                Counter_Times = 500;
-                Counter_Enable = 1;
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-                Car_Go_Target(0, -860, 250, 150);
-                printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
+                Counter_Times = 350;
+                Counter_Enable = 1;
+                Car_Go_Target(0, -860, 300, 150);
                 running_flag++;
                 break;
             case 3: // 第三次行动完成，进入下一个状态
-                running_flag = 0;
-                StateMachine_SetState(MOVE_TO_RAW_AGAIN);
+                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                is_turning = 1;
+                if (is_turning == 1 && Car_Calibration(200, 200))
+                {
+                    is_turning = 0;
+                }
+                if (!is_turning)
+                {
+                    running_flag = 0;
+                    StateMachine_SetState(MOVE_TO_RAW_AGAIN);
+                }
                 break;
             }
         }
@@ -202,40 +202,44 @@ void StateMachine_Update(void)
             switch (running_flag)
             {
             case 0: // y方向回退860mm
-                Counter_Times = 500;
-                Counter_Enable = 1;
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-                Car_Go_Target(0, -860, 250, 150);
                 printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
-
+                Counter_Times = 350;
+                Counter_Enable = 1;
+                Car_Go_Target(0, -860, 300, 150);
                 running_flag++;
                 break;
 
             case 1: // 原地向右旋转90度调整滑轨方向即x轴方向
-                Counter_Times = 700;
-                Counter_Enable = 1;
-                is_turning = 1;
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-                Car_Turn(90, 100, 250);
-                printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
-                if (Counter_Enable == 0)
+                is_turning = 1;
+                if (is_turning == 1 && Car_Turn(0, 200, 200))
                 {
                     is_turning = 0;
-                    running_flag++;
                 }
+                if (!is_turning)
+                    running_flag++;
                 break;
 
             case 2: // y轴方向走-425mm
-                Counter_Times = 400;
-                Counter_Enable = 1;
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                Counter_Times = 280;
+                Counter_Enable = 1;
                 Car_Go_Target(0, -425, 250, 150);
                 running_flag++;
                 break;
             case 3: // 第三次行动完成，进入下一个状态
-                running_flag = 0;
-                printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
-                StateMachine_SetState(MOVE_TO_RAW_AGAIN);
+                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                is_turning = 1;
+                if (is_turning == 1 && Car_Calibration(200, 200))
+                {
+                    is_turning = 0;
+                }
+                if (!is_turning)
+                {
+                    running_flag = 0;
+                    StateMachine_SetState(STATE_IDLE);
+                }
                 break;
             }
         }
