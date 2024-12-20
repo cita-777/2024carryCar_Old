@@ -12,4 +12,8 @@ extern uint16_t Counter_Times;
 extern uint8_t Car_Counter_Enable;
 extern uint16_t Car_Counter_Times;
 extern uint16_t Car_Counter;
+
+extern uint8_t flag;
+extern uint16_t u10ms;
+uint8_t Get_Time_Interval(uint32_t Current_Time, uint32_t Past_Time, uint32_t Delay_Time);
 #endif

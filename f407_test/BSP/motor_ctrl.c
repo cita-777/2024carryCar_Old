@@ -1,5 +1,6 @@
 #include "motor_ctrl.h"
 #include "stdio.h"
+#include "usr_tim.h"
 uint8_t uart3_rxbuff;
 uint8_t Send_Data[20];
 uint8_t Stop_Flag_Car = 1; // 小车停止标志位
@@ -226,41 +227,44 @@ void Motor_Run(void)
     Send_Data[3] = 0x6B;
     HAL_UART_Transmit(&huart3, Send_Data, 4, 1000);
     // Delay_ms(10);
-    Delay_us(1);
+    // Delay_us(1);
 }
 
 // Speed 单位RPM
 // Acc   0---255
 void Motor_SetSpeed(uint8_t Motor_Num, int16_t Speed, uint8_t Acc)
 {
+    static uint32_t Last_Send_Time = 0; // 静态变量用于记录上一次发送时间
     uint8_t Direction;
     uint16_t Speed_Temp = My_ABS(Speed);
+
+    // 填充发送数据
     Send_Data[0] = Motor_Num;
     Send_Data[1] = 0xF6;
 
     if (Motor_Num == 1 || Motor_Num == 4)
     {
-        if (Speed >= 0)
-            Direction = 0;
-        else
-            Direction = 1;
+        Direction = (Speed >= 0) ? 0 : 1;
     }
     else
     {
-        if (Speed >= 0)
-            Direction = 1;
-        else
-            Direction = 0;
+        Direction = (Speed >= 0) ? 1 : 0;
     }
 
     Send_Data[2] = Direction;
     Send_Data[3] = Speed_Temp >> 8;
-    Send_Data[4] = (Speed_Temp << 8) >> 8;
+    Send_Data[4] = (Speed_Temp & 0xFF);
     Send_Data[5] = Acc;
     Send_Data[6] = 0x01;
     Send_Data[7] = 0x6B;
-    HAL_UART_Transmit(&huart3, Send_Data, 8, 1000);
-    // Delay_ms(10);
+
+    //    // 非阻塞延时逻辑
+    //    if (Get_Time_Interval(HAL_GetTick(), Last_Send_Time, 1) == 1) // 假设需要每 10ms 发送一次
+    //    {
+    //        HAL_UART_Transmit(&huart3, Send_Data, 8, 1000); // 发送数据
+    //        Last_Send_Time = HAL_GetTick();                 // 更新发送时间
+    //    }
+    HAL_UART_Transmit(&huart3, Send_Data, 8, 1000); // 发送数据
     Delay_us(1);
 }
 
@@ -516,57 +520,101 @@ void Car_Clear(void)
     Motor_Clear(3);
     Motor_Clear(4);
 }
-
-// 小车转弯
-uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
+uint8_t Car_Turn_NoUse_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
 {
-#if Car_Turn_Use_IMU // 结合IMU转向
-    IMU_Data_Proc();
+
+    static float Alpha = 56.4; // Alpha 46.8
+    uint8_t ret = 0;
+    static uint8_t Temp_State = 0;
+
+    if (Temp_State == 0)
+    {
+        
+
+        if (Tar_Yaw >= 0)
+        {
+            Motor_SetPosition(1, Tar_Yaw * Alpha, Speed_Limit, Car_ACC);
+            Motor_SetPosition(2, Tar_Yaw * Alpha, -Speed_Limit, Car_ACC);
+            Motor_SetPosition(3, Tar_Yaw * Alpha, -Speed_Limit, Car_ACC);
+            Motor_SetPosition(4, Tar_Yaw * Alpha, Speed_Limit, Car_ACC);
+            Motor_Run();
+        }
+        else
+        {
+            Motor_SetPosition(1, -Tar_Yaw * Alpha, Speed_Limit, Car_ACC);
+            Motor_SetPosition(2, -Tar_Yaw * Alpha, -Speed_Limit, Car_ACC);
+            Motor_SetPosition(3, -Tar_Yaw * Alpha, Speed_Limit, Car_ACC);
+            Motor_SetPosition(4, -Tar_Yaw * Alpha, -Speed_Limit, Car_ACC);
+            Motor_Run();
+        }
+				Temp_State = 1;
+    }
+    else if (Temp_State == 1)
+    {	
+				
+        ret = 1;
+        Temp_State = 0;
+				
+    }
+
+    return ret;
+}
+// 小车转弯
+uint8_t Car_Turn_Use_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
+{
+	IMU_Data_Proc();
+    
     static uint8_t Temp_State = 0;
     static uint8_t Stop_Counter = 0;
     static float Temp_Target_Yaw = 0.0f;
     static float cal_YawAngle = 0.0f;
     static float Yaw_Error = 0.0f;
-    static float Motor_Kp = 0.7f; // 转向环KP
+    static float Yaw_Integral = 0.0f;
+    static float Yaw_Derivative = 0.0f;
+    static float Previous_Yaw_Error = 0.0f;
+    static float Motor_Kp = 0.6f;  // 转向环KP
+    static float Motor_Ki = 0.00f; // 转向环KI
+    static float Motor_Kd = 0.1f;  // 转向环KD
+	  static float Control_Output=0.0f;
     uint8_t ret = 0;
 
     if (YawAngle != 0)
     {
         cal_YawAngle = YawAngle;
     }
-    // printf("Yaw Angle0: %f\n", YawAngle);
-    // printf("t2.txt=\"%f\"\xff\xff\xff", YawAngle);
 
     if (Temp_State == 0) // 还没转弯，或者准备新转弯
     {
         Temp_State = 1;
         Temp_Target_Yaw = Tar_Yaw;
+        Yaw_Integral = 0.0f;
+        Previous_Yaw_Error = 0.0f;
     }
 
     else if (Temp_State == 1) // 当 Temp_State == 1 时，表示小车正在进行转弯
     {
-        // printf("t2.txt=\"%f\"\xff\xff\xff", cal_YawAngle);
         Yaw_Error = cal_YawAngle - Temp_Target_Yaw;
-        // if((YawAngle>=330&&YawAngle<=350)||YawAngle>=10) return 1;
-        // printf("t3.txt=\"%f\"\xff\xff\xff", Yaw_Error);
-        //  调整 err_yaw 范围
         if (Yaw_Error >= 180.0f)
             Yaw_Error -= 360.0f;
         else if (Yaw_Error <= -180.0f)
             Yaw_Error += 360.0f;
 
-        Yaw_Error *= Motor_Kp;
-        // printf("t3.txt=\"%f\"\xff\xff\xff", Yaw_Error);
+        Yaw_Integral += Yaw_Error;
+        Yaw_Derivative = Yaw_Error - Previous_Yaw_Error;
+        Previous_Yaw_Error = Yaw_Error;
 
-        if (Yaw_Error > Speed_Limit)
-            Yaw_Error = Speed_Limit;
-        else if (Yaw_Error < -Speed_Limit)
-            Yaw_Error = -Speed_Limit;
+         Control_Output = Motor_Kp * Yaw_Error + Motor_Ki * Yaw_Integral + Motor_Kd * Yaw_Derivative;
+				     printf("t2.txt=\"%f\"\xff\xff\xff", cal_YawAngle);
+        printf("t3.txt=\"%f\"\xff\xff\xff", Control_Output);
+        if (Control_Output > Speed_Limit)
+            Control_Output = Speed_Limit;
+        else if (Control_Output < -Speed_Limit)
+            Control_Output = -Speed_Limit;
 
-        Motor_SetSpeed(1, -Yaw_Error, Car_ACC);
-        Motor_SetSpeed(2, Yaw_Error, Car_ACC);
-        Motor_SetSpeed(3, Yaw_Error, Car_ACC);
-        Motor_SetSpeed(4, -Yaw_Error, Car_ACC);
+        Motor_SetSpeed(1, -Control_Output, Car_ACC);
+        Motor_SetSpeed(2, Control_Output, Car_ACC);
+        Motor_SetSpeed(3, Control_Output, Car_ACC);
+        Motor_SetSpeed(4, -Control_Output, Car_ACC);
         Motor_Run();
 
         if (cal_YawAngle >= Temp_Target_Yaw - 2 && cal_YawAngle <= Temp_Target_Yaw + 2)
@@ -582,46 +630,31 @@ uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
         }
     }
     return ret;
-#endif
-#if Car_Turn_Use_IMU == 0       // 不结合IMU转向
-    static float Alpha = 450.8; // Alpha 46.8
+}
+uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
+{
+	//IMU_Data_Proc();
     uint8_t ret = 0;
-    static uint8_t Temp_State = 0;
+    static uint8_t temp_state = 0;
 
-    if (Temp_State == 0)
+    if (temp_state == 0)
     {
-        Temp_State = 1;
-
-        if (Tar_Yaw >= 0)
+        if(Car_Turn_NoUse_IMU(Tar_Yaw, Speed_Limit, Car_ACC))
         {
-            Motor_SetPosition(1, Tar_Yaw * Alpha, -Speed_Limit, Car_ACC);
-            Motor_SetPosition(2, Tar_Yaw * Alpha, Speed_Limit, Car_ACC);
-            Motor_SetPosition(3, Tar_Yaw * Alpha, -Speed_Limit, Car_ACC);
-            Motor_SetPosition(4, Tar_Yaw * Alpha, Speed_Limit, Car_ACC);
-            Motor_Run();
-        }
-        else
-        {
-            Motor_SetPosition(1, -Tar_Yaw * Alpha, Speed_Limit, Car_ACC);
-            Motor_SetPosition(2, -Tar_Yaw * Alpha, -Speed_Limit, Car_ACC);
-            Motor_SetPosition(3, -Tar_Yaw * Alpha, Speed_Limit, Car_ACC);
-            Motor_SetPosition(4, -Tar_Yaw * Alpha, -Speed_Limit, Car_ACC);
-            Motor_Run();
+            temp_state = 1;
         }
     }
-    else if (Temp_State == 1)
+    else
     {
-        if (Stop_Flag_Car == 1)
+        if(Car_Turn_Use_IMU(Tar_Yaw, Speed_Limit, Car_ACC))
         {
             ret = 1;
-            Temp_State = 0;
+            temp_state = 0;
         }
     }
 
     return ret;
-#endif
 }
-
 // 车身回正
 uint8_t Car_Calibration(uint16_t Speed_Limit, uint16_t Car_ACC)
 {
@@ -633,31 +666,31 @@ uint8_t Car_Calibration(uint16_t Speed_Limit, uint16_t Car_ACC)
     {
         cal_YawAngle = YawAngle;
     }
-    if (Temp_State == 0)//还没开始校准
+    if (Temp_State == 0) // 还没开始校准
     {
         Temp_State++;
         Temp_Target_Cal_Angle = cal_YawAngle;
     }
-    else if (Temp_State == 1)//正在校准中
+    else if (Temp_State == 1) // 正在校准中
     {
         uint8_t temp = 0;
 
         if (Temp_Target_Cal_Angle <= 10 || (Temp_Target_Cal_Angle >= 350 && Temp_Target_Cal_Angle <= 360))
         {
-            temp = Car_Turn(0,Speed_Limit, Car_ACC);
+            temp = Car_Turn_Use_IMU(0, Speed_Limit, Car_ACC);
         }
 
         if (Temp_Target_Cal_Angle <= 95 && Temp_Target_Cal_Angle >= 85)
         {
-            temp = Car_Turn(90, Speed_Limit, Car_ACC);
+            temp = Car_Turn_Use_IMU(90, Speed_Limit, Car_ACC);
         }
         if (Temp_Target_Cal_Angle <= 185 && Temp_Target_Cal_Angle >= 175)
         {
-            temp = Car_Turn(180, Speed_Limit, Car_ACC);
+            temp = Car_Turn_Use_IMU(180, Speed_Limit, Car_ACC);
         }
         if (Temp_Target_Cal_Angle <= 275 && Temp_Target_Cal_Angle >= 265)
         {
-            temp = Car_Turn(270, Speed_Limit, Car_ACC);
+            temp = Car_Turn_Use_IMU(270, Speed_Limit, Car_ACC);
         }
 
         if (temp == 1)

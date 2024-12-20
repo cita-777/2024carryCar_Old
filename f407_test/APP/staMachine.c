@@ -101,7 +101,7 @@ void StateMachine_Update(void)
             case 2: // 原地旋转向右90度调整滑轨方向即x轴方向
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 is_turning = 1;
-                if (is_turning == 1 && Car_Turn(90, 200, 150))
+                if (is_turning == 1 && Car_Turn_Use_IMU(90, 200, 150))
                 {
                     is_turning = 0;
                 }
@@ -120,7 +120,7 @@ void StateMachine_Update(void)
              case 4: // 原地旋转向右90度调整滑轨方向即x轴方向
                  printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                  is_turning = 1;
-                 if (is_turning == 1 && Car_Turn(180, 200, 200))
+                 if (is_turning == 1 && Car_Turn_Use_IMU(180, 200, 200))
                  {
                     is_turning = 0;
                  }
@@ -163,7 +163,7 @@ void StateMachine_Update(void)
             case 1: // 原地向右旋转90度调整滑轨方向即x轴方向
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 is_turning = 1;
-                if (is_turning == 1 && Car_Turn(270, 200, 200))
+                if (is_turning == 1 && Car_Turn_Use_IMU(270, 200, 200))
                 {
                     is_turning = 0;
                 }
@@ -213,7 +213,7 @@ void StateMachine_Update(void)
             case 1: // 原地向右旋转90度调整滑轨方向即x轴方向
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 is_turning = 1;
-                if (is_turning == 1 && Car_Turn(0, 200, 200))
+                if (is_turning == 1 && Car_Turn_Use_IMU(0, 200, 200))
                 {
                     is_turning = 0;
                 }

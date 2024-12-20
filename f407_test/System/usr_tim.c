@@ -1,4 +1,5 @@
 #include "usr_tim.h"
+#include "imu.h"
 uint16_t u10ms;
 double Yaw_Compensate = 0;
 
@@ -9,15 +10,20 @@ uint16_t Counter_Times = 0;
 uint8_t Car_Counter_Enable = 0;
 uint16_t Car_Counter_Times = 0;
 uint16_t Car_Counter = 0;
+
+uint8_t flag=0;
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == (&htim6))//0.01s触发一次中断
     {
+
+			 
         if (Counter_Enable == 1)
         {
             Counter++;
 					//printf("Counter:%d\n",Counter);
-						 printf("t7.txt=\"%d\"\xff\xff\xff", Counter);
+						 //printf("t7.txt=\"%d\"\xff\xff\xff", Counter);
             if (Counter >= Counter_Times)
             {
                 Counter = 0;
@@ -46,9 +52,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
         u10ms++;
 
-        if (u10ms >= 100)
+        if (u10ms >= 100000)
         {
             u10ms = 0;
+flag=1;
             //HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
             Yaw_Compensate -= 0.007;
         }

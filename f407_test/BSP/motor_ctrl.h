@@ -6,7 +6,7 @@
 #include "usart.h"
 #include <math.h>
 
-#define Car_Turn_Use_IMU 1
+
 
 extern uint8_t uart3_rxbuff;
 extern uint8_t Stop_Flag_Car;
@@ -34,6 +34,8 @@ void Car_Go_Target(int32_t Tar_X, int32_t Tar_Y, int16_t Speed, uint16_t Car_ACC
 void Car_Go_Target_A(int32_t Tar_X, int32_t Tar_Y, int16_t Speed, uint16_t Car_ACC);
 void Car_Clear(void);
 uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC);
+uint8_t Car_Turn_Use_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC);
+uint8_t Car_Turn_NoUse_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC);
 uint8_t Car_Calibration(uint16_t Speed_Limit, uint16_t Car_ACC);
 
 void HuaGui_UP(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc);
