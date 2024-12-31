@@ -5,7 +5,8 @@
 #include "stm32f4xx_hal.h"
 
 extern uint8_t ready_flag;
-
+extern uint8_t is_wait_jetson_grab ;
+extern uint8_t running_flag ;  
 typedef enum
 {
     STATE_IDLE,

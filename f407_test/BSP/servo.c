@@ -11,7 +11,7 @@
 #include "servo.h"
 #include "user_uart.h"
 #include "math.h"
-
+#include "Delay.h"
 
 Usart_DataTypeDef *servo_usart = &FSUS_Usart; // 串口总线舵机对应的USART
 
@@ -20,30 +20,203 @@ Usart_DataTypeDef *servo_usart = &FSUS_Usart; // 串口总线舵机对应的USART
 	//@id 舵机编号
 	//@angle 舵机角度
 	//@interval 时间间隔
-void Servo_Control(uint8_t servo_id,float angle,float velocity){
+void Servo_Control(uint8_t servo_id,float angle){
 	
-	// 加速时间
-	uint16_t t_acc;
-	// 减速时间
-	uint16_t t_dec;
+	//// 舵机控制相关的参数
+	// 时间间隔ms
+	// 可以尝试修改设置更小的时间间隔，例如500ms
+	uint16_t interval = 2000;
 	// 舵机执行功率 mV 默认为0
 	uint16_t power = 0;
 	// 设置舵机角度的时候, 是否为阻塞式
 	// 0:不等待 1:等待舵机旋转到特定的位置;
 	uint8_t wait = 0;
-	// 读取的角度
-	float angle_read;
-
-	t_acc = 100;
-  t_dec = 150;
+	// 是否为多圈模式
+	// 0: 单圈模式; 1: 多圈模式;
+	uint8_t is_mturn = 0;
 	
 	float anglea = angle;
-  float velocitya = velocity;
 	uint8_t servo_ida = servo_id;
 
-	FSUS_SetServoAngleByVelocity(servo_usart, servo_ida, anglea, velocitya, t_acc, t_dec, power, wait);
-	FSUS_QueryServoAngle(servo_usart, servo_ida, &angle_read);
+	FSUS_SetServoAngle(servo_usart, servo_ida, anglea, interval, power, wait);
+
+
+	// 阻塞式等待, 等待旋转到目标角度
+	//FSUS_Wait(servo_usart, servo_ida, anglea, is_mturn);
+	
+	HAL_Delay(1);
 }
+
+
+// 执行抓取动作
+void Crawl_Close(){
+	//// 舵机控制相关的参数
+	// 时间间隔ms
+	// 可以尝试修改设置更小的时间间隔，例如500ms
+	uint16_t interval = 500;
+	// 舵机执行功率 mV 默认为0
+	uint16_t power = 0;
+	// 设置舵机角度的时候, 是否为阻塞式
+	// 0:不等待 1:等待舵机旋转到特定的位置;
+	uint8_t wait = 0;
+	// 是否为多圈模式
+	// 0: 单圈模式; 1: 多圈模式;
+	uint8_t is_mturn = 0;
+	
+	
+	// 控制舵机旋转到另外一个角度
+	//FSUS_SetServoAngle(servo_usart, 1, -90.0, interval, power, wait);
+	//FSUS_SetServoAngle(servo_usart, 2, -45.0, interval, power, wait);
+	FSUS_SetServoAngle(servo_usart, 3, -62, interval, power, wait);
+	
+	// 阻塞式等待, 等待旋转到目标角度
+	// 注意要跟设定值相同
+	//FSUS_Wait(servo_usart, 1, -90.0, is_mturn);
+	//FSUS_Wait(servo_usart, 2, -45.0, is_mturn);
+	//FSUS_Wait(servo_usart, 3, -60.0, is_mturn);
+
+	// 等待2s
+	//HAL_Delay(500);
+}
+
+
+// 执行打开动作
+void Crawl_Open(){
+		//// 舵机控制相关的参数
+	// 时间间隔ms
+	// 可以尝试修改设置更小的时间间隔，例如500ms
+	uint16_t interval = 500;
+	// 舵机执行功率 mV 默认为0
+	uint16_t power = 0;
+	// 设置舵机角度的时候, 是否为阻塞式
+	// 0:不等待 1:等待舵机旋转到特定的位置;
+	uint8_t wait = 0;
+	// 是否为多圈模式
+	// 0: 单圈模式; 1: 多圈模式;
+	uint8_t is_mturn = 0;
+	
+	
+	// 控制舵机旋转到另外一个角度
+	//FSUS_SetServoAngle(servo_usart, 1, 0, interval, power, wait);
+	//FSUS_SetServoAngle(servo_usart, 2, 0, interval, power, wait);
+	FSUS_SetServoAngle(servo_usart, 3, 0, interval, power, wait);
+	
+	// 阻塞式等待, 等待旋转到目标角度
+	// 注意要跟设定值相同
+	//FSUS_Wait(servo_usart, 1, 0, is_mturn);
+	//FSUS_Wait(servo_usart, 2, 0, is_mturn);
+	//FSUS_Wait(servo_usart, 3, 0, is_mturn);
+}
+
+// 向前动作
+void Forward(){
+		//// 舵机控制相关的参数
+	// 时间间隔ms
+	// 可以尝试修改设置更小的时间间隔，例如500ms
+	uint16_t interval = 500;
+	// 舵机执行功率 mV 默认为0
+	uint16_t power = 0;
+	// 设置舵机角度的时候, 是否为阻塞式
+	// 0:不等待 1:等待舵机旋转到特定的位置;
+	uint8_t wait = 0;
+	// 是否为多圈模式
+	// 0: 单圈模式; 1: 多圈模式;
+	uint8_t is_mturn = 0;
+	
+	
+	// 控制舵机旋转到另外一个角度
+	//FSUS_SetServoAngle(servo_usart, 1, 24, interval, power, wait);
+	FSUS_SetServoAngle(servo_usart, 2, -92, interval, power, wait);
+}
+
+// 向后动作
+void Backward(){
+	//// 舵机控制相关的参数
+	// 时间间隔ms
+	// 可以尝试修改设置更小的时间间隔，例如500ms
+	uint16_t interval = 500;
+	// 舵机执行功率 mV 默认为0
+	uint16_t power = 0;
+	// 设置舵机角度的时候, 是否为阻塞式
+	// 0:不等待 1:等待舵机旋转到特定的位置;
+	uint8_t wait = 0;
+	// 是否为多圈模式
+	// 0: 单圈模式; 1: 多圈模式;
+	uint8_t is_mturn = 0;
+	
+	
+	// 控制舵机旋转到另外一个角度
+	//FSUS_SetServoAngle(servo_usart, 1, 24, interval, power, wait);
+	FSUS_SetServoAngle(servo_usart, 2, 60, interval, power, wait);
+	//FSUS_SetServoAngle(servo_usart, 3, 0, interval, power, wait);
+	
+	// 阻塞式等待, 等待旋转到目标角度
+	// 注意要跟设定值相同
+	//FSUS_Wait(servo_usart, 1, 24, is_mturn);
+	//FSUS_Wait(servo_usart, 2, 55, is_mturn);
+	//FSUS_Wait(servo_usart, 3, 0, is_mturn);
+}
+
+// 位置1
+void Location_First(){
+	//Servo_Control(1,24);
+	//// 舵机控制相关的参数
+	// 时间间隔ms
+	// 可以尝试修改设置更小的时间间隔，例如500ms
+	uint16_t interval = 200;
+	// 舵机执行功率 mV 默认为0
+	uint16_t power = 0;
+	// 设置舵机角度的时候, 是否为阻塞式
+	// 0:不等待 1:等待舵机旋转到特定的位置;
+	uint8_t wait = 0;
+	// 是否为多圈模式
+	// 0: 单圈模式; 1: 多圈模式;
+	uint8_t is_mturn = 0;
+	
+	
+	// 控制舵机旋转到另外一个角度
+	FSUS_SetServoAngle(servo_usart, 1, 118, interval, power, wait);
+	//FSUS_SetServoAngle(servo_usart, 2, 55, interval, power, wait);
+	//FSUS_SetServoAngle(servo_usart, 3, 0, interval, power, wait);
+}
+
+// 位置2
+void Location_Second(){
+		// 可以尝试修改设置更小的时间间隔，例如500ms
+	uint16_t interval = 200;
+	// 舵机执行功率 mV 默认为0
+	uint16_t power = 0;
+	// 设置舵机角度的时候, 是否为阻塞式
+	// 0:不等待 1:等待舵机旋转到特定的位置;
+	uint8_t wait = 0;
+	// 是否为多圈模式
+	// 0: 单圈模式; 1: 多圈模式;
+	uint8_t is_mturn = 0;
+	
+	
+	// 控制舵机旋转到另外一个角度
+	FSUS_SetServoAngle(servo_usart, 1, 3, interval, power, wait);
+}
+
+// 位置3
+void Location_Third(){
+			// 可以尝试修改设置更小的时间间隔，例如500ms
+	uint16_t interval = 200;
+	// 舵机执行功率 mV 默认为0
+	uint16_t power = 0;
+	// 设置舵机角度的时候, 是否为阻塞式
+	// 0:不等待 1:等待舵机旋转到特定的位置;
+	uint8_t wait = 0;
+	// 是否为多圈模式
+	// 0: 单圈模式; 1: 多圈模式;
+	uint8_t is_mturn = 0;
+	
+	
+	// 控制舵机旋转到另外一个角度
+	FSUS_SetServoAngle(servo_usart, 1, -106, interval, power, wait);
+}
+
+
 
 
 //******************************以下为例程函数**************************************

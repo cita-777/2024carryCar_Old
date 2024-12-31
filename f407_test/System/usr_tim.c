@@ -11,19 +11,22 @@ uint8_t Car_Counter_Enable = 0;
 uint16_t Car_Counter_Times = 0;
 uint16_t Car_Counter = 0;
 
-uint8_t flag=0;
+uint8_t Action_Counter_Enable = 0;
+uint16_t Action_Counter_Times = 0;
+uint16_t Action_Counter = 0;
+
+uint8_t flag = 0;
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == (&htim6))//0.01s触发一次中断
+    if (htim == (&htim6)) // 0.01s触发一次中断
     {
 
-			 
         if (Counter_Enable == 1)
         {
             Counter++;
-					//printf("Counter:%d\n",Counter);
-						 //printf("t7.txt=\"%d\"\xff\xff\xff", Counter);
+            // printf("Counter:%d\n",Counter);
+printf("t7.txt=\"%d\"\xff\xff\xff", Counter);
             if (Counter >= Counter_Times)
             {
                 Counter = 0;
@@ -55,11 +58,29 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         if (u10ms >= 100000)
         {
             u10ms = 0;
-flag=1;
-            //HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+            flag = 1;
+            // HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
             Yaw_Compensate -= 0.007;
         }
 
-        //Servo_CallBack();
+        // Servo_CallBack();
+    }
+    if (htim == (&htim7)) // 0.01s触发一次中断
+    {
+        if (Action_Counter_Enable)
+        {
+            Action_Counter++;
+            
+
+            if (Action_Counter >= Action_Counter_Times)
+            {
+                Action_Counter = 0;
+                Action_Counter_Enable = 0;
+            }
+        }
+        else
+        {
+            Action_Counter = 0;
+        }
     }
 }

@@ -161,7 +161,11 @@ void Motor_Init(void)
 {
     __HAL_UART_ENABLE_IT(&huart3, UART_IT_RXNE);
     HAL_UART_Receive_IT(&huart3, &uart3_rxbuff, 1);
-    Motor_Reset(0);
+    Motor_Reset(5);
+    Motor_Reset(1);
+    Motor_Reset(2);
+    Motor_Reset(3);
+    Motor_Reset(4);
     Delay_ms(100);
     // HuaGui_JiaoZhun();
     // Delay_ms(10);
@@ -328,7 +332,7 @@ void Motor_SetPosition_A(uint8_t Motor_Num, uint32_t Pulse, int16_t Speed, uint8
     Send_Data[0] = Motor_Num;
     Send_Data[1] = 0xFD;
 
-    if (Motor_Num == 2 || Motor_Num == 4)
+    if (Motor_Num == 1 || Motor_Num == 4)
     {
         if (Speed >= 0)
             Direction = 0;
@@ -707,11 +711,11 @@ uint8_t Car_Calibration(uint16_t Speed_Limit, uint16_t Car_ACC)
 /*
 ---------------------------------滑轨运动函数---------------------------------
 */
-#define Motor_HuaGui_Pulse_DEFAULT 100
-#define Motor_HuaGui_Pulse_GROUND 13000
-#define Motor_HuaGui_Pulse_ZhuanPan 5000
-#define Motor_HuaGui_Pulse_Fang 4000
-#define Motor_HuaGui_Pulse_Qu 5000
+#define Motor_HuaGui_Pulse_DEFAULT 0
+#define Motor_HuaGui_Pulse_GROUND 7000
+#define Motor_HuaGui_Pulse_ZhuanPan 2000
+#define HuaGui_Motor_Pulse_Fang_To_Map 4500
+#define HuaGui_Motor_Pulse_Get_From_Map 4500
 #define Motor_HuaGui_Pulse_DOWN2 5500
 uint8_t HuaGui_Motor_State = HuaGui_Motor_State_UP;
 uint8_t Stop_Flag_HuaGui = 1; // 滑轨电机停止标志位
@@ -753,18 +757,18 @@ void HuaGui_DOWN2(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc)
 }
 
 // 滑轨移动到载物台放置位置
-void HuaGui_Fang(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc)
+void HuaGui_Fang_To_Map(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc)
 {
-    HuaGui_Motor_State = HuaGui_Motor_State_Fang;
-    Motor_SetPosition_A(5, Motor_HuaGui_Pulse_Fang, Motor_HuaGui_Speed, Motor_HuaGui_Acc);
+    HuaGui_Motor_State = HuaGui_Motor_State_Fang_To_Map;
+    Motor_SetPosition_A(5, HuaGui_Motor_Pulse_Fang_To_Map, Motor_HuaGui_Speed, Motor_HuaGui_Acc);
     Motor_Run();
 }
 
 // 滑轨移动到载物台取物位置
-void HuaGui_Qu(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc)
+void HuaGui_Get_From_Map(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc)
 {
-    HuaGui_Motor_State = HuaGui_Motor_State_Qu;
-    Motor_SetPosition_A(5, Motor_HuaGui_Pulse_Qu, Motor_HuaGui_Speed, Motor_HuaGui_Acc);
+    HuaGui_Motor_State = HuaGui_Motor_Pulse_Get_From_Map;
+    Motor_SetPosition_A(5, HuaGui_Motor_Pulse_Get_From_Map, Motor_HuaGui_Speed, Motor_HuaGui_Acc);
     Motor_Run();
 }
 
@@ -775,3 +779,4 @@ void HuaGui_ZhuanPan(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc)
     Motor_SetPosition_A(5, Motor_HuaGui_Pulse_ZhuanPan, Motor_HuaGui_Speed, Motor_HuaGui_Acc);
     Motor_Run();
 }
+

@@ -6,7 +6,18 @@
 // 变量定义
 extern Usart_DataTypeDef *servo_usart;
 
-//舵机控制函数
+//某个舵机转动多少角度
+void Servo_Control(uint8_t servo_id,float angle);
+
+void Crawl_Close(void);
+void Crawl_Open(void);
+void Forward(void);
+void Backward(void);
+void Location_First(void);
+void Location_Second(void);
+void Location_Third(void);
+void Servo_Init(void);
+void test_servo(void);
 
 //******************************以下为例程函数**************************************
 
@@ -46,6 +57,6 @@ void FSUSExample_ReadData(void);
 /* 用户自定义数据-写入 */
 void FSUSExample_WriteData(void);
 
-void Servo_Control(uint8_t servo_id,float angle,float velocity);
+
 
 #endif 

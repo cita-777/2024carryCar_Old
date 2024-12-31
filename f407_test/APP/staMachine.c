@@ -5,10 +5,14 @@
 #include "Delay.h"
 #include "usr_tim.h"
 #include "servo.h"
+#include "action.h"
+#include "jetson.h"
 
-uint8_t ready_flag = 0;
-uint8_t running_flag = 0;
-uint8_t is_turning = 0;
+uint8_t ready_flag = 0;          // 是否准备好一键启动
+uint8_t running_flag = 0;        // 轮子电机是否在运行
+uint8_t is_turning = 0;          // 是否正转向
+uint8_t is_wait_jetson_grab = 1; // 是否抓取
+
 static State currentState = STATE_IDLE;
 
 void StateMachine_SetState(State newState)
@@ -29,12 +33,14 @@ void StateMachine_Update(void)
         Car_Go_Target(0, 0, 0, 0);
         printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
         printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
+
         if (ready_flag == 1)
         {
             Delay_ms(2000);
-            StateMachine_SetState(MOVE_TO_RAW);
+            StateMachine_SetState(MOVE_TO_ROUGH);
             ready_flag = 0;
         }
+
         // printf("%f\r\n",YawAngle);
         // printf("t5.txt=\"%d\"\xff\xff\xff", currentState); // 调试状态信息
         break;
@@ -51,6 +57,7 @@ void StateMachine_Update(void)
                 Counter_Enable = 1;
                 Car_Go_Target(-150, 0, 200, 150);
                 running_flag++;
+                // running_flag+=7;
                 break;
 
             case 1: // y方向直行1450mm
@@ -68,12 +75,45 @@ void StateMachine_Update(void)
                 Car_Go_Target(50, 0, 200, 150);
                 running_flag++;
                 break;
-            case 3: // 第三次行动完成，进入下一个状态
+            case 3: // 给jetson发送到达原料区信号
+                Jetson_Send(0x04);
+                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                running_flag++;
+                break;
+            case 4: // 等待jetson发送数据
+                if (is_wait_jetson_grab == 0)
+                {
+                    is_wait_jetson_grab = 1;
+                    Action_Catch_And_Put_First_Obj();
+                }
+                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                break;
+            case 5: // 等待jetson发送数据
+                if (is_wait_jetson_grab == 0)
+                {
+                    // running_flag++;
+                    is_wait_jetson_grab = 1;
+                    Action_Catch_And_Put_Second_Obj();
+                }
+                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                break;
+            case 6: // 等待jetson发送数据
+                if (is_wait_jetson_grab == 0)
+                {
+                    // running_flag++;
+                    is_wait_jetson_grab = 1;
+                    Action_Catch_And_Put_Third_Obj();
+                }
+                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                break;
+
+            case 7: // 第三次行动完成，进入下一个状态
                 running_flag = 0;
-                StateMachine_SetState(MOVE_TO_ROUGH);
+                StateMachine_SetState(STATE_IDLE);
                 break;
             }
         }
+
         break;
 
     case MOVE_TO_ROUGH:
@@ -82,11 +122,12 @@ void StateMachine_Update(void)
             switch (running_flag)
             {
             case 0: // x轴回退50mm
+                printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 Counter_Times = 80;
                 Counter_Enable = 1;
                 Car_Go_Target(-50, 0, 200, 150);
-
+                // running_flag+=5;
                 running_flag++;
                 break;
 
@@ -98,54 +139,111 @@ void StateMachine_Update(void)
                 running_flag++;
                 break;
 
-            case 2: // 原地旋转向右90度调整滑轨方向即x轴方向
-                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-                is_turning = 1;
-                if (is_turning == 1 && Car_Turn_Use_IMU(90, 200, 150))
-                {
-                    is_turning = 0;
-                }
-                if (!is_turning)
-                    running_flag++;
-                break;
+                //            case 2: // 原地旋转向右90度调整滑轨方向即x轴方向
+                //                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                //                is_turning = 1;
 
-            case 3: // y轴方向走-1720mm
+                //                if (is_turning == 1 && Car_Turn_Use_IMU(90, 200, 150))
+                //                {
+                //                    is_turning = 0;
+                //                }
+
+                //                if (!is_turning)
+                //                    running_flag++;
+
+                //                break;
+
+            case 2: // y轴方向走-1720mm
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-                Counter_Times = 900;
+                Counter_Times = 700;
                 Counter_Enable = 1;
                 Car_Go_Target(0, -1720, 400, 130);
                 running_flag++;
                 break;
 
-             case 4: // 原地旋转向右90度调整滑轨方向即x轴方向
-                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-                 is_turning = 1;
-                 if (is_turning == 1 && Car_Turn_Use_IMU(180, 200, 200))
-                 {
-                    is_turning = 0;
-                 }
-                if (!is_turning)
-                     running_flag++;
-                 break;
-            case 5: // 第三次行动完成，进入下一个状态
-                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
-                is_turning = 1;
-                if (is_turning == 1 && Car_Calibration(200, 200))
+                //            case 4: // 原地旋转向右90度调整滑轨方向即x轴方向
+                //                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                //                is_turning = 1;
+
+                //                if (is_turning == 1 && Car_Turn_Use_IMU(180, 200, 200))
+                //                {
+                //                    is_turning = 0;
+                //                }
+
+                //                if (!is_turning)
+                //                    running_flag++;
+                //                break;
+            case 3:
+                printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
+
+                if (QRCodeString[0] == '2' && QRCodeString[1] == '1' && QRCodeString[2] == '3')
                 {
-                    is_turning = 0;
+                    if (Action_Put_Obj_To_Map_213())
+                    {
+                        running_flag++;
+                    }
                 }
+                else if (QRCodeString[0] == '2' && QRCodeString[1] == '3' && QRCodeString[2] == '1')
+                {
+                    if (Action_Put_Obj_To_Map_231())
+                    {
+                        running_flag++;
+                    }
+                }
+                else if (QRCodeString[0] == '1' && QRCodeString[1] == '2' && QRCodeString[2] == '3')
+                {
+                    if (Action_Put_Obj_To_Map_123())
+                    {
+                        running_flag++;
+                    }
+                }
+                else if (QRCodeString[0] == '1' && QRCodeString[1] == '3' && QRCodeString[2] == '2')
+                {
+                    if (Action_Put_Obj_To_Map_132())
+                    {
+                        running_flag++;
+                    }
+                }
+                else if (QRCodeString[0] == '3' && QRCodeString[1] == '1' && QRCodeString[2] == '2')
+                {
+                    if (Action_Put_Obj_To_Map_312())
+                    {
+                        running_flag++;
+                    }
+                }
+                else if (QRCodeString[0] == '3' && QRCodeString[1] == '2' && QRCodeString[2] == '1')
+                {
+                    if (Action_Put_Obj_To_Map321())
+                    {
+                        running_flag++;
+                    }
+                }
+                else
+                {
+                    printf("t8.txt=\"Error: Invalid QR Code\"\xff\xff\xff");
+                }
+                break;
+
+            case 4: // 第三次行动完成，进入下一个状态
+                    //                printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                    //                is_turning = 1;
+
+                //                if (is_turning == 1 && Car_Calibration(200, 200))
+                //                {
+                //                    is_turning = 0;
+                //                }
+
                 if (!is_turning)
                 {
                     running_flag = 0;
-                    StateMachine_SetState(MOVE_TO_TEMPSTORE);
+                    StateMachine_SetState(STATE_IDLE);
                 }
-								
-//						 running_flag = 0;
-//						StateMachine_SetState(MOVE_TO_TEMPSTORE);
                 break;
             }
         }
+
         break;
+
     case MOVE_TO_TEMPSTORE:
         if (Counter_Enable == 0 || is_turning == 1)
         {
@@ -163,12 +261,15 @@ void StateMachine_Update(void)
             case 1: // 原地向右旋转90度调整滑轨方向即x轴方向
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 is_turning = 1;
+
                 if (is_turning == 1 && Car_Turn_Use_IMU(270, 200, 200))
                 {
                     is_turning = 0;
                 }
+
                 if (!is_turning)
                     running_flag++;
+
                 break;
 
             case 2: // y轴方向走-860mm
@@ -178,18 +279,22 @@ void StateMachine_Update(void)
                 Car_Go_Target(0, -860, 300, 150);
                 running_flag++;
                 break;
+
             case 3: // 第三次行动完成，进入下一个状态
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 is_turning = 1;
+
                 if (is_turning == 1 && Car_Calibration(200, 200))
                 {
                     is_turning = 0;
                 }
+
                 if (!is_turning)
                 {
                     running_flag = 0;
                     StateMachine_SetState(MOVE_TO_RAW_AGAIN);
                 }
+
                 break;
             }
         }
@@ -213,12 +318,15 @@ void StateMachine_Update(void)
             case 1: // 原地向右旋转90度调整滑轨方向即x轴方向
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 is_turning = 1;
+
                 if (is_turning == 1 && Car_Turn_Use_IMU(0, 200, 200))
                 {
                     is_turning = 0;
                 }
+
                 if (!is_turning)
                     running_flag++;
+
                 break;
 
             case 2: // y轴方向走-425mm
@@ -228,21 +336,26 @@ void StateMachine_Update(void)
                 Car_Go_Target(0, -425, 250, 150);
                 running_flag++;
                 break;
+
             case 3: // 第三次行动完成，进入下一个状态
                 printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 is_turning = 1;
+
                 if (is_turning == 1 && Car_Calibration(200, 200))
                 {
                     is_turning = 0;
                 }
+
                 if (!is_turning)
                 {
                     running_flag = 0;
                     StateMachine_SetState(STATE_IDLE);
                 }
+
                 break;
             }
         }
+
         break;
 
     case STATE_CUSTOM:
