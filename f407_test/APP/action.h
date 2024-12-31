@@ -8,9 +8,9 @@
 #include "Delay.h"
 #include "staMachine.h"
 #include "jetson.h"
-void Action_Catch_And_Put_Obj(uint8_t position);
-
-uint8_t Action_Put_Obj_To_Map(void);
+void Action_Catch_Obj_To_ZhuanPan(uint8_t position);
+void Action_Put_Obj_To_Map(uint8_t position);
+void Action_Get_Obj_From_Map(uint8_t position);
 uint8_t Action_Put_Obj_To_Map_321(void);
 uint8_t Action_Put_Obj_To_Map_312(void);
 uint8_t Action_Put_Obj_To_Map_123(void);

@@ -53,7 +53,7 @@ typedef enum
     HuaGui_Motor_State_UP = 0, // 最高零点位置
     HuaGui_Motor_State_Fang_To_Map,   // 向载物台放置物块位置
     HuaGui_Motor_State_Get_From_Map,     // 从载物台取物块位置
-    HuaGui_Motor_State_DOWN2,  // 第二层取物位置
+    HuaGui_Motor_State_Fang_To_Map_2,  // 第二层取物位置
     HuaGui_Motor_State_DOWN,   // 最低取放物位置
     HuaGui_Motor_State_ZhuanPan
 } Motor_HuaGui_States;

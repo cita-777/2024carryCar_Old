@@ -33,7 +33,7 @@ void Servo_Control(uint8_t servo_id,float angle){
 	uint8_t wait = 0;
 	// 是否为多圈模式
 	// 0: 单圈模式; 1: 多圈模式;
-	uint8_t is_mturn = 0;
+	//uint8_t is_mturn = 0;
 	
 	float anglea = angle;
 	uint8_t servo_ida = servo_id;
@@ -61,7 +61,7 @@ void Crawl_Close(){
 	uint8_t wait = 0;
 	// 是否为多圈模式
 	// 0: 单圈模式; 1: 多圈模式;
-	uint8_t is_mturn = 0;
+	//uint8_t is_mturn = 0;
 	
 	
 	// 控制舵机旋转到另外一个角度
@@ -93,7 +93,7 @@ void Crawl_Open(){
 	uint8_t wait = 0;
 	// 是否为多圈模式
 	// 0: 单圈模式; 1: 多圈模式;
-	uint8_t is_mturn = 0;
+	//uint8_t is_mturn = 0;
 	
 	
 	// 控制舵机旋转到另外一个角度
@@ -121,7 +121,7 @@ void Forward(){
 	uint8_t wait = 0;
 	// 是否为多圈模式
 	// 0: 单圈模式; 1: 多圈模式;
-	uint8_t is_mturn = 0;
+	//uint8_t is_mturn = 0;
 	
 	
 	// 控制舵机旋转到另外一个角度
@@ -142,7 +142,7 @@ void Backward(){
 	uint8_t wait = 0;
 	// 是否为多圈模式
 	// 0: 单圈模式; 1: 多圈模式;
-	uint8_t is_mturn = 0;
+	//uint8_t is_mturn = 0;
 	
 	
 	// 控制舵机旋转到另外一个角度
@@ -171,7 +171,7 @@ void Location_First(){
 	uint8_t wait = 0;
 	// 是否为多圈模式
 	// 0: 单圈模式; 1: 多圈模式;
-	uint8_t is_mturn = 0;
+	//uint8_t is_mturn = 0;
 	
 	
 	// 控制舵机旋转到另外一个角度
@@ -191,7 +191,7 @@ void Location_Second(){
 	uint8_t wait = 0;
 	// 是否为多圈模式
 	// 0: 单圈模式; 1: 多圈模式;
-	uint8_t is_mturn = 0;
+	//uint8_t is_mturn = 0;
 	
 	
 	// 控制舵机旋转到另外一个角度
@@ -209,7 +209,7 @@ void Location_Third(){
 	uint8_t wait = 0;
 	// 是否为多圈模式
 	// 0: 单圈模式; 1: 多圈模式;
-	uint8_t is_mturn = 0;
+	//uint8_t is_mturn = 0;
 	
 	
 	// 控制舵机旋转到另外一个角度
