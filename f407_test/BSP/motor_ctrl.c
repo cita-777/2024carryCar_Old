@@ -327,7 +327,7 @@ void Motor_SetPosition(uint8_t Motor_Num, uint32_t Pulse, int16_t Speed, uint8_t
         Stop_Flag_Car = 0;
     }
 
-    Delay_us(1);
+    Delay_ms(10);
 }
 
 // Speed 单位RPM
@@ -537,7 +537,7 @@ uint8_t Car_Turn_NoUse_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_A
 {
 
     // static float Alpha = 56.4; // Alpha 46.8
-    static float Alpha = 56.4;
+    static float Alpha = 58.4;
     uint8_t ret = 0;
     static uint8_t Temp_State = 0;
 
@@ -564,120 +564,194 @@ uint8_t Car_Turn_NoUse_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_A
     }
     else if (Temp_State == 1)
     {
-				Temp_State = 0;
+        Temp_State = 0;
         ret = 1;
     }
 
     return ret;
 }
-// 小车转弯
+ //小车转弯
+//  uint8_t Car_Turn_Use_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
+//  {
+
+//      static uint8_t Temp_State = 0;
+//      static uint8_t Stop_Counter = 0;
+//      static float Temp_Target_Yaw = 0.0f;
+//      float cal_YawAngle = 0.0f;
+//      float Yaw_Error = 0.0f;
+//      static float Yaw_Integral = 0.0f;
+//      static float Yaw_Derivative = 0.0f;
+//      static float Previous_Yaw_Error = 0.0f;
+//      // 降低PID参数，特别是Kd
+//      static float Motor_Kp = 0.6f;  // 降低比例系数
+//      static float Motor_Ki = 0.0f;  // 暂时不使用积分
+//      static float Motor_Kd = 0.05f; // 显著降低微分系数
+//      static float Control_Output = 0.0f;
+//      static uint8_t first_run = 1; // 添加首次运行标志
+//      uint8_t ret = 0;
+
+//      if (YawAngle != 0)
+//      {
+//          cal_YawAngle = YawAngle;
+//      }
+
+//      if (Temp_State == 0)
+//      {
+//          Temp_State = 1;
+//          Temp_Target_Yaw = Tar_Yaw;
+//          Yaw_Integral = 0.0f;
+
+//          // 初始化时特殊处理
+//          if (first_run)
+//          {
+//              Previous_Yaw_Error = cal_YawAngle - Temp_Target_Yaw;
+//              if (Previous_Yaw_Error >= 180.0f)
+//                  Previous_Yaw_Error -= 360.0f;
+//              else if (Previous_Yaw_Error <= -180.0f)
+//                  Previous_Yaw_Error += 360.0f;
+//              Control_Output = 0.0f; // 确保初始输出为0
+//              first_run = 0;
+//          }
+//      }
+//      else if (Temp_State == 1)
+//      {
+//          Yaw_Error = cal_YawAngle - Temp_Target_Yaw;
+//          if (Yaw_Error >= 180.0f)
+//              Yaw_Error -= 360.0f;
+//          else if (Yaw_Error <= -180.0f)
+//              Yaw_Error += 360.0f;
+
+//          // 限制积分范围
+//          Yaw_Integral = Yaw_Integral + Yaw_Error;
+//          if (Yaw_Integral > 100.0f)
+//              Yaw_Integral = 100.0f;
+//          if (Yaw_Integral < -100.0f)
+//              Yaw_Integral = -100.0f;
+
+//          // 限制微分项的变化率
+//          float temp_derivative = Yaw_Error - Previous_Yaw_Error;
+//          if (temp_derivative > 10.0f)
+//              temp_derivative = 10.0f;
+//          if (temp_derivative < -10.0f)
+//              temp_derivative = -10.0f;
+//          Yaw_Derivative = temp_derivative;
+
+//          Previous_Yaw_Error = Yaw_Error;
+
+//          // 计算控制输出
+//          float temp_output = Motor_Kp * Yaw_Error + Motor_Ki * Yaw_Integral + Motor_Kd * Yaw_Derivative;
+
+//          // 使用斜坡限制输出变化率
+//          if (temp_output > Control_Output + 5.0f)
+//              Control_Output += 5.0f;
+//          else if (temp_output < Control_Output - 5.0f)
+//              Control_Output -= 5.0f;
+//          else
+//              Control_Output = temp_output;
+
+//          // 输出限幅
+//          if (Control_Output > Speed_Limit)
+//              Control_Output = Speed_Limit;
+//          else if (Control_Output < -Speed_Limit)
+//              Control_Output = -Speed_Limit;
+
+//          printf("t2.txt=\"%f\"\xff\xff\xff", cal_YawAngle);
+//          printf("t3.txt=\"%f\"\xff\xff\xff", Control_Output);
+
+//          // 电机控制
+//          Motor_SetSpeed(1, -Control_Output, Car_ACC);
+//          Motor_SetSpeed(2, Control_Output, Car_ACC);
+//          Motor_SetSpeed(3, Control_Output, Car_ACC);
+//          Motor_SetSpeed(4, -Control_Output, Car_ACC);
+//          Motor_Run();
+
+//          if (cal_YawAngle >= Temp_Target_Yaw - 1 && cal_YawAngle <= Temp_Target_Yaw + 1)
+//              Stop_Counter++;
+//          else
+//              Stop_Counter = 0;
+
+//          if (Stop_Counter >= 3)
+//          {
+//              Stop_Counter = 0;
+//              ret = 1;
+//              Temp_State = 0;
+//          }
+//      }
+//      return ret;
+//  }
 uint8_t Car_Turn_Use_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
 {
-    IMU_Data_Proc();
-
-    static uint8_t Temp_State = 0;
-    static uint8_t Stop_Counter = 0;
-    static float Temp_Target_Yaw = 0.0f;
-    float cal_YawAngle = 0.0f;
-    float Yaw_Error = 0.0f;
-    static float Yaw_Integral = 0.0f;
-    static float Yaw_Derivative = 0.0f;
-    static float Previous_Yaw_Error = 0.0f;
-    // 降低PID参数，特别是Kd
-    static float Motor_Kp = 0.6f;  // 降低比例系数
-    static float Motor_Ki = 0.0f;  // 暂时不使用积分
-    static float Motor_Kd = 0.05f; // 显著降低微分系数
-    static float Control_Output = 0.0f;
-    static uint8_t first_run = 1; // 添加首次运行标志
+    static float Motor_Kp = 0.6f;    // 增大基础Kp值
+    static float Motor_Kd = 0.0f;    // 添加微分系数
+    static float Last_Error = 0.0f;  // 用于计算误差变化率
     uint8_t ret = 0;
+    static uint8_t Temp_State = 0;   
+    static uint8_t Stop_Counter = 0;  
+    static float Temp_Yaw = 0.0f;    
+    static float Last_Yaw = 0.0f;   
 
-    if (YawAngle != 0)
-    {
-        cal_YawAngle = YawAngle;
+    if (Speed_Limit == 0 || Car_ACC == 0) {
+        return 0;
     }
 
-    if (Temp_State == 0)
-    {
+    if (Temp_State == 0) {
         Temp_State = 1;
-        Temp_Target_Yaw = Tar_Yaw;
-        Yaw_Integral = 0.0f;
-
-        // 初始化时特殊处理
-        if (first_run)
-        {
-            Previous_Yaw_Error = cal_YawAngle - Temp_Target_Yaw;
-            if (Previous_Yaw_Error >= 180.0f)
-                Previous_Yaw_Error -= 360.0f;
-            else if (Previous_Yaw_Error <= -180.0f)
-                Previous_Yaw_Error += 360.0f;
-            Control_Output = 0.0f; // 确保初始输出为0
-            first_run = 0;
+        if (Tar_Yaw >= 90 || Tar_Yaw <= -90) {
+            Temp_Yaw = Last_Yaw + (float)Tar_Yaw;
+            while(Temp_Yaw >= 360.0f) Temp_Yaw -= 360.0f;
+            while(Temp_Yaw < 0.0f) Temp_Yaw += 360.0f;
+            Last_Yaw = Temp_Yaw;
+        } else {
+            Temp_Yaw = YawAngle + (float)Tar_Yaw;
+            while(Temp_Yaw >= 360.0f) Temp_Yaw -= 360.0f;
+            while(Temp_Yaw < 0.0f) Temp_Yaw += 360.0f;
         }
-    }
-    else if (Temp_State == 1)
-    {
-        Yaw_Error = cal_YawAngle - Temp_Target_Yaw;
-        if (Yaw_Error >= 180.0f)
-            Yaw_Error -= 360.0f;
-        else if (Yaw_Error <= -180.0f)
-            Yaw_Error += 360.0f;
+    } else if (Temp_State == 1) {
+        float Yaw_Error = Temp_Yaw - YawAngle;
+        if(Yaw_Error > 180.0f) Yaw_Error -= 360.0f;
+        if(Yaw_Error < -180.0f) Yaw_Error += 360.0f;
+        
+        // 动态调整Kp
+        float Dynamic_Kp = Motor_Kp;
+        if(fabsf(Yaw_Error) > 45.0f) {
+            Dynamic_Kp *= 1.5f;  // 误差大时增大Kp
+        }
+        
+        // PD控制
+        float Error_Rate = Yaw_Error - Last_Error;
+        float Control_Output = Dynamic_Kp * Yaw_Error + Motor_Kd * Error_Rate;
+        Last_Error = Yaw_Error;
 
-        // 限制积分范围
-        Yaw_Integral = Yaw_Integral + Yaw_Error;
-        if (Yaw_Integral > 100.0f)
-            Yaw_Integral = 100.0f;
-        if (Yaw_Integral < -100.0f)
-            Yaw_Integral = -100.0f;
+        if (Control_Output > (float)Speed_Limit) {
+            Control_Output = (float)Speed_Limit;
+        } else if (Control_Output < -(float)Speed_Limit) {
+            Control_Output = -(float)Speed_Limit;
+        }
+          printf("t2.txt=\"%f\"\xff\xff\xff", YawAngle);
+          printf("t3.txt=\"%f\"\xff\xff\xff", Control_Output);
 
-        // 限制微分项的变化率
-        float temp_derivative = Yaw_Error - Previous_Yaw_Error;
-        if (temp_derivative > 10.0f)
-            temp_derivative = 10.0f;
-        if (temp_derivative < -10.0f)
-            temp_derivative = -10.0f;
-        Yaw_Derivative = temp_derivative;
-
-        Previous_Yaw_Error = Yaw_Error;
-
-        // 计算控制输出
-        float temp_output = Motor_Kp * Yaw_Error + Motor_Ki * Yaw_Integral + Motor_Kd * Yaw_Derivative;
-
-        // 使用斜坡限制输出变化率
-        if (temp_output > Control_Output + 5.0f)
-            Control_Output += 5.0f;
-        else if (temp_output < Control_Output - 5.0f)
-            Control_Output -= 5.0f;
-        else
-            Control_Output = temp_output;
-
-        // 输出限幅
-        if (Control_Output > Speed_Limit)
-            Control_Output = Speed_Limit;
-        else if (Control_Output < -Speed_Limit)
-            Control_Output = -Speed_Limit;
-
-        printf("t2.txt=\"%f\"\xff\xff\xff", cal_YawAngle);
-        printf("t3.txt=\"%f\"\xff\xff\xff", Control_Output);
-
-        // 电机控制
-        Motor_SetSpeed(1, -Control_Output, Car_ACC);
-        Motor_SetSpeed(2, Control_Output, Car_ACC);
-        Motor_SetSpeed(3, Control_Output, Car_ACC);
-        Motor_SetSpeed(4, -Control_Output, Car_ACC);
+        Motor_SetSpeed(1, (int16_t)(Control_Output), Car_ACC);
+        Motor_SetSpeed(2, (int16_t)(-Control_Output), Car_ACC);
+        Motor_SetSpeed(3, (int16_t)(-Control_Output), Car_ACC);
+        Motor_SetSpeed(4, (int16_t)(Control_Output), Car_ACC);
         Motor_Run();
 
-        if (cal_YawAngle >= Temp_Target_Yaw - 1 && cal_YawAngle <= Temp_Target_Yaw + 1)
+        float angle_diff = fabsf(Temp_Yaw - YawAngle);
+        if(angle_diff > 180.0f) angle_diff = 360.0f - angle_diff;
+        
+        if (angle_diff <= 1.0f) {
             Stop_Counter++;
-        else
+        } else {
             Stop_Counter = 0;
+        }
 
-        if (Stop_Counter >= 3)
-        {
+        if (Stop_Counter >= 3) {
             Stop_Counter = 0;
             ret = 1;
             Temp_State = 0;
         }
     }
+
     return ret;
 }
 uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
@@ -688,25 +762,20 @@ uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
     switch (turn_state)
     {
     case 0: // 开环转向
-        Car_Turn_NoUse_IMU(90, Speed_Limit, Car_ACC);
-        Delay_ms(4000);
-        turn_state = 1;
-        break;
-
-    case 1: // 等待开环转向完成
-        if (End_flag == 1)
-        {
-            IMU_Data_Proc();
-            turn_state = 2;
-            Delay_ms(300);
-        }
-        else{
-        }
+        Car_Turn_NoUse_IMU(Tar_Yaw, Speed_Limit, Car_ACC);
+		
+        Delay_ms(6000);
+				turn_state = 1;
         
         break;
 
-    case 2:                                                      // 闭环微调
-        if (Car_Turn_Use_IMU(Tar_Yaw, Speed_Limit , Car_ACC)) // 降低速度进行微调
+    case 1: // 等待开环转向完成
+        turn_state = 2;
+        Delay_ms(300);
+        break;
+
+    case 2: // 闭环微调
+        if (Car_Turn_Use_IMU(Tar_Yaw,Speed_Limit, Car_ACC)) 
         {
             turn_state = 3;
         }
@@ -724,55 +793,113 @@ uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
 
     return ret;
 }
-// 车身回正
+// 车身回正(相对角度版本)
 uint8_t Car_Calibration(uint16_t Speed_Limit, uint16_t Car_ACC)
 {
-    IMU_Data_Proc();
-    static uint8_t Temp_State = 0;
-    static float Temp_Target_Cal_Angle = 0;
-    static float cal_YawAngle = 0.0f;
-    uint8_t ret = 0;
-    if (YawAngle != 0)
-    {
-        cal_YawAngle = YawAngle;
-    }
-    if (Temp_State == 0) // 还没开始校准
-    {
-        Temp_State++;
-        Temp_Target_Cal_Angle = cal_YawAngle;
-    }
-    else if (Temp_State == 1) // 正在校准中
-    {
-        uint8_t temp = 0;
-
-        if (Temp_Target_Cal_Angle <= 10 || (Temp_Target_Cal_Angle >= 350 && Temp_Target_Cal_Angle <= 360))
-        {
-            temp = Car_Turn_Use_IMU(0, Speed_Limit, Car_ACC);
-        }
-
-        if (Temp_Target_Cal_Angle <= 95 && Temp_Target_Cal_Angle >= 85)
-        {
-            temp = Car_Turn_Use_IMU(90, Speed_Limit, Car_ACC);
-        }
-        if (Temp_Target_Cal_Angle <= 185 && Temp_Target_Cal_Angle >= 175)
-        {
-            temp = Car_Turn_Use_IMU(180, Speed_Limit, Car_ACC);
-        }
-        if (Temp_Target_Cal_Angle <= 275 && Temp_Target_Cal_Angle >= 265)
-        {
-            temp = Car_Turn_Use_IMU(270, Speed_Limit, Car_ACC);
-        }
-
-        if (temp == 1)
-        {
-            ret = 1;
-            Temp_State = 0;
-            Temp_Target_Cal_Angle = 0;
-        }
-    }
-
-    return ret;
+      static uint8_t Temp_State = 0;
+      static float Temp_Yaw = 0;
+      uint8_t ret = 0;
+      if (Temp_State == 0)
+      {
+            Temp_State++;
+            Temp_Yaw = YawAngle;
+      }
+      else if (Temp_State == 1)
+      {
+            uint8_t temp = 0;
+            if (Temp_Yaw <= 10 && Temp_Yaw >= -10)
+            {
+                  temp = Car_Turn(-Temp_Yaw, Speed_Limit, Car_ACC);
+            }
+            if (Temp_Yaw <= 95 && Temp_Yaw >= 85)
+            {
+                  temp = Car_Turn(-Temp_Yaw + 90, Speed_Limit, Car_ACC);
+            }
+            if (Temp_Yaw <= -85 && Temp_Yaw >= -95)
+            {
+                  temp = Car_Turn(-Temp_Yaw - 90, Speed_Limit, Car_ACC);
+            }
+            if (Temp_Yaw <= 185 && Temp_Yaw >= 175)
+            {
+                  temp = Car_Turn(-Temp_Yaw + 180, Speed_Limit, Car_ACC);
+            }
+            if (Temp_Yaw <= -175 && Temp_Yaw >= -185)
+            {
+                  temp = Car_Turn(-Temp_Yaw - 180, Speed_Limit, Car_ACC);
+            }
+            if (Temp_Yaw <= 275 && Temp_Yaw >= 265)
+            {
+                  temp = Car_Turn(-Temp_Yaw + 270, Speed_Limit, Car_ACC);
+            }
+            if (Temp_Yaw <= -265 && Temp_Yaw >= -275)
+            {
+                  temp = Car_Turn(-Temp_Yaw - 270, Speed_Limit, Car_ACC);
+            }
+            if (Temp_Yaw <= 365 && Temp_Yaw >= 355)
+            {
+                  temp = Car_Turn(-Temp_Yaw + 360, Speed_Limit, Car_ACC);
+            }
+            if (Temp_Yaw <= -355 && Temp_Yaw >= -365)
+            {
+                  temp = Car_Turn(-Temp_Yaw - 360, Speed_Limit, Car_ACC);
+            }
+            if (temp == 1)
+            {
+                  ret = 1;
+                  Temp_State = 0;
+                  Temp_Yaw = 0;
+            }
+      }
+      return ret;
 }
+// 车身回正.绝对角度版本
+//uint8_t Car_Calibration(uint16_t Speed_Limit, uint16_t Car_ACC)
+//{
+//    static uint8_t Temp_State = 0;
+//    static float Temp_Target_Cal_Angle = 0;
+//    static float cal_YawAngle = 0.0f;
+//    uint8_t ret = 0;
+//    if (YawAngle != 0)
+//    {
+//        cal_YawAngle = YawAngle;
+//    }
+//    if (Temp_State == 0) // 还没开始校准
+//    {
+//        Temp_State++;
+//        Temp_Target_Cal_Angle = cal_YawAngle;
+//    }
+//    else if (Temp_State == 1) // 正在校准中
+//    {
+//        uint8_t temp = 0;
+
+//        if (Temp_Target_Cal_Angle <= 10 || (Temp_Target_Cal_Angle >= 350 && Temp_Target_Cal_Angle <= 360))
+//        {
+//            temp = Car_Turn_Use_IMU(0, Speed_Limit, Car_ACC);
+//        }
+
+//        if (Temp_Target_Cal_Angle <= 95 && Temp_Target_Cal_Angle >= 85)
+//        {
+//            temp = Car_Turn_Use_IMU(90, Speed_Limit, Car_ACC);
+//        }
+//        if (Temp_Target_Cal_Angle <= 185 && Temp_Target_Cal_Angle >= 175)
+//        {
+//            temp = Car_Turn_Use_IMU(180, Speed_Limit, Car_ACC);
+//        }
+//        if (Temp_Target_Cal_Angle <= 275 && Temp_Target_Cal_Angle >= 265)
+//        {
+//            temp = Car_Turn_Use_IMU(270, Speed_Limit, Car_ACC);
+//        }
+
+//        if (temp == 1)
+//        {
+//            ret = 1;
+//            Temp_State = 0;
+//            Temp_Target_Cal_Angle = 0;
+//        }
+//    }
+
+//    return ret;
+//}
 
 /*
 ---------------------------------滑轨运动函数---------------------------------

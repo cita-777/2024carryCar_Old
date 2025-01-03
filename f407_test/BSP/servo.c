@@ -99,7 +99,7 @@ void Crawl_Open(){
 	// 控制舵机旋转到另外一个角度
 	//FSUS_SetServoAngle(servo_usart, 1, 0, interval, power, wait);
 	//FSUS_SetServoAngle(servo_usart, 2, 0, interval, power, wait);
-	FSUS_SetServoAngle(servo_usart, 3, 0, interval, power, wait);
+	FSUS_SetServoAngle(servo_usart, 3, 5, interval, power, wait);
 	
 	// 阻塞式等待, 等待旋转到目标角度
 	// 注意要跟设定值相同
@@ -126,7 +126,7 @@ void Forward(){
 	
 	// 控制舵机旋转到另外一个角度
 	//FSUS_SetServoAngle(servo_usart, 1, 24, interval, power, wait);
-	FSUS_SetServoAngle(servo_usart, 2, -92, interval, power, wait);
+	FSUS_SetServoAngle(servo_usart, 2, -87, interval, power, wait);
 }
 
 // 向后动作
@@ -147,7 +147,7 @@ void Backward(){
 	
 	// 控制舵机旋转到另外一个角度
 	//FSUS_SetServoAngle(servo_usart, 1, 24, interval, power, wait);
-	FSUS_SetServoAngle(servo_usart, 2, 64, interval, power, wait);
+	FSUS_SetServoAngle(servo_usart, 2, 74, interval, power, wait);
 	//FSUS_SetServoAngle(servo_usart, 3, 0, interval, power, wait);
 	
 	// 阻塞式等待, 等待旋转到目标角度
@@ -163,7 +163,7 @@ void Location_First(){
 	//// 舵机控制相关的参数
 	// 时间间隔ms
 	// 可以尝试修改设置更小的时间间隔，例如500ms
-	uint16_t interval = 100;
+	uint16_t interval = 200;
 	// 舵机执行功率 mV 默认为0
 	uint16_t power = 0;
 	// 设置舵机角度的时候, 是否为阻塞式
@@ -175,7 +175,7 @@ void Location_First(){
 	
 	
 	// 控制舵机旋转到另外一个角度
-	FSUS_SetServoAngle(servo_usart, 1, 118, interval, power, wait);
+	FSUS_SetServoAngle(servo_usart, 1, 82, interval, power, wait);
 	//FSUS_SetServoAngle(servo_usart, 2, 55, interval, power, wait);
 	//FSUS_SetServoAngle(servo_usart, 3, 0, interval, power, wait);
 }
@@ -183,7 +183,7 @@ void Location_First(){
 // 位置2
 void Location_Second(){
 		// 可以尝试修改设置更小的时间间隔，例如500ms
-	uint16_t interval = 100;
+	uint16_t interval = 200;
 	// 舵机执行功率 mV 默认为0
 	uint16_t power = 0;
 	// 设置舵机角度的时候, 是否为阻塞式
@@ -195,13 +195,13 @@ void Location_Second(){
 	
 	
 	// 控制舵机旋转到另外一个角度
-	FSUS_SetServoAngle(servo_usart, 1, 3, interval, power, wait);
+	FSUS_SetServoAngle(servo_usart, 1, -33, interval, power, wait);
 }
 
 // 位置3
 void Location_Third(){
 			// 可以尝试修改设置更小的时间间隔，例如500ms
-	uint16_t interval = 100;
+	uint16_t interval = 200;
 	// 舵机执行功率 mV 默认为0
 	uint16_t power = 0;
 	// 设置舵机角度的时候, 是否为阻塞式
@@ -213,7 +213,7 @@ void Location_Third(){
 	
 	
 	// 控制舵机旋转到另外一个角度
-	FSUS_SetServoAngle(servo_usart, 1, -106, interval, power, wait);
+	FSUS_SetServoAngle(servo_usart, 1, -163, interval, power, wait);
 }
 
 

@@ -32,7 +32,7 @@ void Action_Catch_Obj_To_ZhuanPan(uint8_t position)
   default:
     break;
   }
-  Delay_ms(2000);
+  Delay_ms(3000);
 
   HuaGui_UP(1000, 230);
   Backward();
@@ -190,7 +190,7 @@ uint8_t Action_Put_Obj_To_Map_321(void)
     {
     case 0: // 移动到3
       //printf("t9.txt=\"%d\"\xff\xff\xff", put_to_map_state);
-      Counter_Times = 100;
+      Counter_Times = 200;
       Counter_Enable = 1;
       Car_Go_Target(0, distance_with_sehuan, 50, 50);
       put_to_map_state++;
@@ -229,7 +229,7 @@ uint8_t Action_Put_Obj_To_Map_321(void)
 
     case 3: // 移动到2
       //printf("t9.txt=\"%d\"\xff\xff\xff", put_to_map_state);
-      Counter_Times = 100;
+      Counter_Times = 200;
       Counter_Enable = 1;
       Car_Go_Target(0, -distance_with_sehuan, 50, 50);
       put_to_map_state++;
@@ -266,7 +266,7 @@ uint8_t Action_Put_Obj_To_Map_321(void)
 
     case 6: // 移动到1
       //printf("t9.txt=\"%d\"\xff\xff\xff", put_to_map_state);
-      Counter_Times = 100;
+      Counter_Times = 200;
       Counter_Enable = 1;
       Car_Go_Target(0, -distance_with_sehuan, 50, 50);
       // Jetson_Send(0x05);
@@ -302,10 +302,9 @@ uint8_t Action_Put_Obj_To_Map_321(void)
       Action_Put_Obj_To_Map(3);
       put_to_map_state++;
       break;
-
     case 9: // 回到3
       //printf("t9.txt=\"%d\"\xff\xff\xff", put_to_map_state);
-      Counter_Times = 100;
+      Counter_Times = 250;
       Counter_Enable = 1;
       Car_Go_Target(0, 2 * distance_with_sehuan, 50, 50);
       put_to_map_state++;

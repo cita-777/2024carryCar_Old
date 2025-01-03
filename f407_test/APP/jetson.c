@@ -69,6 +69,8 @@ void Jetson_Receive_Data(UART_HandleTypeDef *huart)
 
                 // 发送到串口显示
                 printf("t10.txt=\"%s\"\xff\xff\xff", QRCodeString);
+								printf("t10.txt=\"%s\"\xff\xff\xff", QRCodeString);
+								printf("t10.txt=\"%s\"\xff\xff\xff", QRCodeString);
                 break;
 
             case 0x0C: // 任务C
