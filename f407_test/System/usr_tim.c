@@ -26,7 +26,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         {
             Counter++;
             // printf("Counter:%d\n",Counter);
-printf("t7.txt=\"%d\"\xff\xff\xff", Counter);
+//printf("t7.txt=\"%d\"\xff\xff\xff", Counter);
             if (Counter >= Counter_Times)
             {
                 Counter = 0;
@@ -55,7 +55,7 @@ printf("t7.txt=\"%d\"\xff\xff\xff", Counter);
 
         u10ms++;
 
-        if (u10ms >= 100000)
+        if (u10ms >= 1000)
         {
             u10ms = 0;
             flag = 1;
@@ -65,22 +65,6 @@ printf("t7.txt=\"%d\"\xff\xff\xff", Counter);
 
         // Servo_CallBack();
     }
-    if (htim == (&htim7)) // 0.01s触发一次中断
-    {
-        if (Action_Counter_Enable)
-        {
-            Action_Counter++;
-            
 
-            if (Action_Counter >= Action_Counter_Times)
-            {
-                Action_Counter = 0;
-                Action_Counter_Enable = 0;
-            }
-        }
-        else
-        {
-            Action_Counter = 0;
-        }
-    }
+    
 }

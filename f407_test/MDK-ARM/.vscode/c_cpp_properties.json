@@ -3,20 +3,18 @@
         {
             "name": "f407_test",
             "includePath": [
-                "d:\\Desktop\\物流车git仓库\\f407_test\\Core\\Inc",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\Drivers\\STM32F4xx_HAL_Driver\\Inc",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\Drivers\\STM32F4xx_HAL_Driver\\Inc\\Legacy",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\Drivers\\CMSIS\\Device\\ST\\STM32F4xx\\Include",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\Drivers\\CMSIS\\Include",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\BSP",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\System",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\APP",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\MiddleWare",
-                "D:\\Keil5\\ARM\\ARMCC\\include",
-                "D:\\Keil5\\ARM\\ARMCC\\include\\rw",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\MDK-ARM",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\Drivers\\STM32F4xx_HAL_Driver\\Src",
-                "d:\\Desktop\\物流车git仓库\\f407_test\\Core\\Src"
+                "d:\\Desktop\\各类工程文件\\物流车git仓库\\f407_test\\Core\\Inc",
+                "d:\\Desktop\\各类工程文件\\物流车git仓库\\f407_test\\Drivers\\STM32F4xx_HAL_Driver\\Inc",
+                "d:\\Desktop\\各类工程文件\\物流车git仓库\\f407_test\\Drivers\\STM32F4xx_HAL_Driver\\Inc\\Legacy",
+                "d:\\Desktop\\各类工程文件\\物流车git仓库\\f407_test\\Drivers\\CMSIS\\Device\\ST\\STM32F4xx\\Include",
+                "d:\\Desktop\\各类工程文件\\物流车git仓库\\f407_test\\Drivers\\CMSIS\\Include",
+                "d:\\Desktop\\各类工程文件\\物流车git仓库\\f407_test\\BSP",
+                "d:\\Desktop\\各类工程文件\\物流车git仓库\\f407_test\\System",
+                "d:\\Desktop\\各类工程文件\\物流车git仓库\\f407_test\\APP",
+                "d:\\Desktop\\各类工程文件\\物流车git仓库\\f407_test\\MiddleWare",
+                "d:\\Desktop\\各类工程文件\\物流车git仓库\\f407_test\\MDK-ARM",
+                "d:\\Desktop\\各类工程文件\\物流车git仓库\\f407_test\\Drivers\\STM32F4xx_HAL_Driver\\Src",
+                "d:\\Desktop\\各类工程文件\\物流车git仓库\\f407_test\\Core\\Src"
             ],
             "defines": [
                 "USE_HAL_DRIVER",

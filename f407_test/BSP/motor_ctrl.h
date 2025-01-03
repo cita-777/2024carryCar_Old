@@ -39,10 +39,10 @@ uint8_t Car_Turn_NoUse_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_A
 uint8_t Car_Calibration(uint16_t Speed_Limit, uint16_t Car_ACC);
 
 void HuaGui_UP(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc);
-void HuaGui_DOWN(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc);
+void HuaGui_ZaiWu(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc);
 void HuaGui_Fang_To_Map(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc);
 void HuaGui_Get_From_Map(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc);
-void HuaGui_DOWN2(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc);
+void HuaGui_Fang_To_Map_2(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc);
 void HuaGui_ZhuanPan(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc);
 
 extern uint8_t HuaGui_Motor_State;
@@ -54,7 +54,7 @@ typedef enum
     HuaGui_Motor_State_Fang_To_Map,   // 向载物台放置物块位置
     HuaGui_Motor_State_Get_From_Map,     // 从载物台取物块位置
     HuaGui_Motor_State_Fang_To_Map_2,  // 第二层取物位置
-    HuaGui_Motor_State_DOWN,   // 最低取放物位置
+    HuaGui_Motor_State_ZaiWu,   // 最低取放物位置
     HuaGui_Motor_State_ZhuanPan
 } Motor_HuaGui_States;
 

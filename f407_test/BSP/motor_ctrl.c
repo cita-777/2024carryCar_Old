@@ -9,6 +9,15 @@ uint16_t Motor_HuaGui_Current = 0;
 /*
 ---------------------------------电机发送指令函数---------------------------------
 */
+uint32_t float2int32(float value)
+{
+    return (int32_t)(value + 0.5f);
+}
+
+int16_t float2int16(float value)
+{
+    return (int16_t)(value + (value >= 0 ? 0.5f : -0.5f));
+}
 // 绝对值函数
 uint32_t My_ABS(int32_t temp)
 {
@@ -231,14 +240,14 @@ void Motor_Run(void)
     Send_Data[3] = 0x6B;
     HAL_UART_Transmit(&huart3, Send_Data, 4, 1000);
     // Delay_ms(10);
-    // Delay_us(1);
+    // Delay_ms(10);
 }
 
 // Speed 单位RPM
 // Acc   0---255
 void Motor_SetSpeed(uint8_t Motor_Num, int16_t Speed, uint8_t Acc)
 {
-    //static uint32_t Last_Send_Time = 0; // 静态变量用于记录上一次发送时间
+    // static uint32_t Last_Send_Time = 0; // 静态变量用于记录上一次发送时间
     uint8_t Direction;
     uint16_t Speed_Temp = My_ABS(Speed);
 
@@ -447,22 +456,11 @@ void Car_Go(int16_t Angle, int16_t Speed, int32_t Distance, uint16_t Car_ACC)
 // 相对位置闭环  1mm = 7.835320275293308837脉冲
 void Car_Go_Target(int32_t Tar_X_mm, int32_t Tar_Y_mm, int16_t Speed, uint16_t Car_ACC)
 {
-    int32_t Tar_X = Tar_X_mm * 15.67064055058661768;
-    int32_t Tar_Y = Tar_Y_mm * 15.67064055058661768;
+    int32_t Tar_X = float2int32(Tar_X_mm * 16.15f);
+    int32_t Tar_Y = float2int32(Tar_Y_mm * 16.15f);
     int32_t V1, V2;
-    V2 = Speed * My_ABS(Tar_Y - Tar_X) / (1.4 * sqrt(Tar_X * Tar_X + Tar_Y * Tar_Y));
-    V1 = Speed * My_ABS(Tar_Y + Tar_X) / (1.4 * sqrt(Tar_X * Tar_X + Tar_Y * Tar_Y));
-
-    if (Tar_X + Tar_Y >= 0)
-    {
-        Motor_SetPosition(1, Tar_X + Tar_Y, V1, Car_ACC);
-        Motor_SetPosition(3, Tar_X + Tar_Y, V1, Car_ACC);
-    }
-    else
-    {
-        Motor_SetPosition(1, -(Tar_X + Tar_Y), -V1, Car_ACC);
-        Motor_SetPosition(3, -(Tar_X + Tar_Y), -V1, Car_ACC);
-    }
+    V2 = Speed * My_ABS(Tar_Y - Tar_X) / (float2int32(1.4 * sqrt(Tar_X * Tar_X + Tar_Y * Tar_Y)));
+    V1 = Speed * My_ABS(Tar_Y + Tar_X) / (float2int32(1.4 * sqrt(Tar_X * Tar_X + Tar_Y * Tar_Y)));
 
     if (Tar_Y - Tar_X >= 0)
     {
@@ -473,6 +471,17 @@ void Car_Go_Target(int32_t Tar_X_mm, int32_t Tar_Y_mm, int16_t Speed, uint16_t C
     {
         Motor_SetPosition(2, Tar_X - Tar_Y, -V2, Car_ACC);
         Motor_SetPosition(4, Tar_X - Tar_Y, -V2, Car_ACC);
+    }
+
+    if (Tar_X + Tar_Y >= 0)
+    {
+        Motor_SetPosition(1, Tar_X + Tar_Y, V1, Car_ACC);
+        Motor_SetPosition(3, Tar_X + Tar_Y, V1, Car_ACC);
+    }
+    else
+    {
+        Motor_SetPosition(1, -(Tar_X + Tar_Y), -V1, Car_ACC);
+        Motor_SetPosition(3, -(Tar_X + Tar_Y), -V1, Car_ACC);
     }
 
     Motor_Run();
@@ -527,13 +536,13 @@ void Car_Clear(void)
 uint8_t Car_Turn_NoUse_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
 {
 
-    static float Alpha = 56.4; // Alpha 46.8
+    // static float Alpha = 56.4; // Alpha 46.8
+    static float Alpha = 56.4;
     uint8_t ret = 0;
     static uint8_t Temp_State = 0;
 
     if (Temp_State == 0)
     {
-        
 
         if (Tar_Yaw >= 0)
         {
@@ -551,14 +560,12 @@ uint8_t Car_Turn_NoUse_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_A
             Motor_SetPosition(4, -Tar_Yaw * Alpha, -Speed_Limit, Car_ACC);
             Motor_Run();
         }
-				Temp_State = 1;
+        Temp_State = 1;
     }
     else if (Temp_State == 1)
-    {	
-				
+    {
+				Temp_State = 0;
         ret = 1;
-        Temp_State = 0;
-				
     }
 
     return ret;
@@ -566,20 +573,22 @@ uint8_t Car_Turn_NoUse_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_A
 // 小车转弯
 uint8_t Car_Turn_Use_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
 {
-	IMU_Data_Proc();
-    
+    IMU_Data_Proc();
+
     static uint8_t Temp_State = 0;
     static uint8_t Stop_Counter = 0;
     static float Temp_Target_Yaw = 0.0f;
-    static float cal_YawAngle = 0.0f;
-    static float Yaw_Error = 0.0f;
+    float cal_YawAngle = 0.0f;
+    float Yaw_Error = 0.0f;
     static float Yaw_Integral = 0.0f;
     static float Yaw_Derivative = 0.0f;
     static float Previous_Yaw_Error = 0.0f;
-    static float Motor_Kp = 0.6f;  // 转向环KP
-    static float Motor_Ki = 0.00f; // 转向环KI
-    static float Motor_Kd = 0.1f;  // 转向环KD
-	  static float Control_Output=0.0f;
+    // 降低PID参数，特别是Kd
+    static float Motor_Kp = 0.6f;  // 降低比例系数
+    static float Motor_Ki = 0.0f;  // 暂时不使用积分
+    static float Motor_Kd = 0.05f; // 显著降低微分系数
+    static float Control_Output = 0.0f;
+    static uint8_t first_run = 1; // 添加首次运行标志
     uint8_t ret = 0;
 
     if (YawAngle != 0)
@@ -587,15 +596,25 @@ uint8_t Car_Turn_Use_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC
         cal_YawAngle = YawAngle;
     }
 
-    if (Temp_State == 0) // 还没转弯，或者准备新转弯
+    if (Temp_State == 0)
     {
         Temp_State = 1;
         Temp_Target_Yaw = Tar_Yaw;
         Yaw_Integral = 0.0f;
-        Previous_Yaw_Error = 0.0f;
-    }
 
-    else if (Temp_State == 1) // 当 Temp_State == 1 时，表示小车正在进行转弯
+        // 初始化时特殊处理
+        if (first_run)
+        {
+            Previous_Yaw_Error = cal_YawAngle - Temp_Target_Yaw;
+            if (Previous_Yaw_Error >= 180.0f)
+                Previous_Yaw_Error -= 360.0f;
+            else if (Previous_Yaw_Error <= -180.0f)
+                Previous_Yaw_Error += 360.0f;
+            Control_Output = 0.0f; // 确保初始输出为0
+            first_run = 0;
+        }
+    }
+    else if (Temp_State == 1)
     {
         Yaw_Error = cal_YawAngle - Temp_Target_Yaw;
         if (Yaw_Error >= 180.0f)
@@ -603,25 +622,51 @@ uint8_t Car_Turn_Use_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC
         else if (Yaw_Error <= -180.0f)
             Yaw_Error += 360.0f;
 
-        Yaw_Integral += Yaw_Error;
-        Yaw_Derivative = Yaw_Error - Previous_Yaw_Error;
+        // 限制积分范围
+        Yaw_Integral = Yaw_Integral + Yaw_Error;
+        if (Yaw_Integral > 100.0f)
+            Yaw_Integral = 100.0f;
+        if (Yaw_Integral < -100.0f)
+            Yaw_Integral = -100.0f;
+
+        // 限制微分项的变化率
+        float temp_derivative = Yaw_Error - Previous_Yaw_Error;
+        if (temp_derivative > 10.0f)
+            temp_derivative = 10.0f;
+        if (temp_derivative < -10.0f)
+            temp_derivative = -10.0f;
+        Yaw_Derivative = temp_derivative;
+
         Previous_Yaw_Error = Yaw_Error;
 
-         Control_Output = Motor_Kp * Yaw_Error + Motor_Ki * Yaw_Integral + Motor_Kd * Yaw_Derivative;
-				     printf("t2.txt=\"%f\"\xff\xff\xff", cal_YawAngle);
-        printf("t3.txt=\"%f\"\xff\xff\xff", Control_Output);
+        // 计算控制输出
+        float temp_output = Motor_Kp * Yaw_Error + Motor_Ki * Yaw_Integral + Motor_Kd * Yaw_Derivative;
+
+        // 使用斜坡限制输出变化率
+        if (temp_output > Control_Output + 5.0f)
+            Control_Output += 5.0f;
+        else if (temp_output < Control_Output - 5.0f)
+            Control_Output -= 5.0f;
+        else
+            Control_Output = temp_output;
+
+        // 输出限幅
         if (Control_Output > Speed_Limit)
             Control_Output = Speed_Limit;
         else if (Control_Output < -Speed_Limit)
             Control_Output = -Speed_Limit;
 
+        printf("t2.txt=\"%f\"\xff\xff\xff", cal_YawAngle);
+        printf("t3.txt=\"%f\"\xff\xff\xff", Control_Output);
+
+        // 电机控制
         Motor_SetSpeed(1, -Control_Output, Car_ACC);
         Motor_SetSpeed(2, Control_Output, Car_ACC);
         Motor_SetSpeed(3, Control_Output, Car_ACC);
         Motor_SetSpeed(4, -Control_Output, Car_ACC);
         Motor_Run();
 
-        if (cal_YawAngle >= Temp_Target_Yaw - 2 && cal_YawAngle <= Temp_Target_Yaw + 2)
+        if (cal_YawAngle >= Temp_Target_Yaw - 1 && cal_YawAngle <= Temp_Target_Yaw + 1)
             Stop_Counter++;
         else
             Stop_Counter = 0;
@@ -637,24 +682,44 @@ uint8_t Car_Turn_Use_IMU(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC
 }
 uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
 {
-	//IMU_Data_Proc();
+    static uint8_t turn_state = 0; // 0: 初始状态, 1: 开环转向完成, 2: 闭环微调中, 3: 完成
     uint8_t ret = 0;
-    static uint8_t temp_state = 0;
 
-    if (temp_state == 0)
+    switch (turn_state)
     {
-        if(Car_Turn_NoUse_IMU(Tar_Yaw, Speed_Limit, Car_ACC))
+    case 0: // 开环转向
+        Car_Turn_NoUse_IMU(90, Speed_Limit, Car_ACC);
+        Delay_ms(4000);
+        turn_state = 1;
+        break;
+
+    case 1: // 等待开环转向完成
+        if (End_flag == 1)
         {
-            temp_state = 1;
+            IMU_Data_Proc();
+            turn_state = 2;
+            Delay_ms(300);
         }
-    }
-    else
-    {
-        if(Car_Turn_Use_IMU(Tar_Yaw, Speed_Limit, Car_ACC))
+        else{
+        }
+        
+        break;
+
+    case 2:                                                      // 闭环微调
+        if (Car_Turn_Use_IMU(Tar_Yaw, Speed_Limit , Car_ACC)) // 降低速度进行微调
         {
-            ret = 1;
-            temp_state = 0;
+            turn_state = 3;
         }
+        break;
+
+    case 3: // 完成转向，停止电机
+        ret = 1;
+        turn_state = 0; // 重置状态为初始状态
+        break;
+
+    default:
+        turn_state = 0;
+        break;
     }
 
     return ret;
@@ -662,6 +727,7 @@ uint8_t Car_Turn(int16_t Tar_Yaw, uint16_t Speed_Limit, uint16_t Car_ACC)
 // 车身回正
 uint8_t Car_Calibration(uint16_t Speed_Limit, uint16_t Car_ACC)
 {
+    IMU_Data_Proc();
     static uint8_t Temp_State = 0;
     static float Temp_Target_Cal_Angle = 0;
     static float cal_YawAngle = 0.0f;
@@ -712,11 +778,11 @@ uint8_t Car_Calibration(uint16_t Speed_Limit, uint16_t Car_ACC)
 ---------------------------------滑轨运动函数---------------------------------
 */
 #define Motor_HuaGui_Pulse_DEFAULT 0
-#define Motor_HuaGui_Pulse_GROUND 7000
-#define Motor_HuaGui_Pulse_ZhuanPan 2000
-#define HuaGui_Motor_Pulse_Fang_To_Map 4500
-#define HuaGui_Motor_Pulse_Get_From_Map 4500
-#define HuaGui_Motor_Pulse_Fang_To_Map_2 2000
+#define Motor_HuaGui_Pulse_ZaiWu 4000
+#define Motor_HuaGui_Pulse_ZhuanPan 2300
+#define HuaGui_Motor_Pulse_Fang_To_Map 12600
+#define HuaGui_Motor_Pulse_Get_From_Map 12500
+#define HuaGui_Motor_Pulse_Fang_To_Map_2 7300
 uint8_t HuaGui_Motor_State = HuaGui_Motor_State_UP;
 uint8_t Stop_Flag_HuaGui = 1; // 滑轨电机停止标志位
 // 滑轨零位归位
@@ -740,16 +806,16 @@ void HuaGui_UP(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc)
     Motor_Run();
 }
 
-// 滑轨移动到最下端位置
-void HuaGui_DOWN(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc)
+// 滑轨移动到载物台位置
+void HuaGui_ZaiWu(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc)
 {
-    HuaGui_Motor_State = HuaGui_Motor_State_DOWN;
-    Motor_SetPosition_A(5, Motor_HuaGui_Pulse_GROUND, Motor_HuaGui_Speed, Motor_HuaGui_Acc);
+    HuaGui_Motor_State = HuaGui_Motor_State_ZaiWu;
+    Motor_SetPosition_A(5, Motor_HuaGui_Pulse_ZaiWu, Motor_HuaGui_Speed, Motor_HuaGui_Acc);
     Motor_Run();
 }
 
 // 滑轨移动到码垛第二层位置
-void HuaGui_HuaGui_Fang_To_Map_2(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc)
+void HuaGui_Fang_To_Map_2(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc)
 {
     HuaGui_Motor_State = HuaGui_Motor_State_Fang_To_Map_2;
     Motor_SetPosition_A(5, HuaGui_Motor_Pulse_Fang_To_Map_2, Motor_HuaGui_Speed, Motor_HuaGui_Acc);
@@ -779,4 +845,3 @@ void HuaGui_ZhuanPan(uint16_t Motor_HuaGui_Speed, uint16_t Motor_HuaGui_Acc)
     Motor_SetPosition_A(5, Motor_HuaGui_Pulse_ZhuanPan, Motor_HuaGui_Speed, Motor_HuaGui_Acc);
     Motor_Run();
 }
-

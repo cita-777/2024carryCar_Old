@@ -53,7 +53,7 @@ void Crawl_Close(){
 	//// 舵机控制相关的参数
 	// 时间间隔ms
 	// 可以尝试修改设置更小的时间间隔，例如500ms
-	uint16_t interval = 500;
+	uint16_t interval = 200;
 	// 舵机执行功率 mV 默认为0
 	uint16_t power = 0;
 	// 设置舵机角度的时候, 是否为阻塞式
@@ -67,7 +67,7 @@ void Crawl_Close(){
 	// 控制舵机旋转到另外一个角度
 	//FSUS_SetServoAngle(servo_usart, 1, -90.0, interval, power, wait);
 	//FSUS_SetServoAngle(servo_usart, 2, -45.0, interval, power, wait);
-	FSUS_SetServoAngle(servo_usart, 3, -62, interval, power, wait);
+	FSUS_SetServoAngle(servo_usart, 3, -61, interval, power, wait);
 	
 	// 阻塞式等待, 等待旋转到目标角度
 	// 注意要跟设定值相同
@@ -85,7 +85,7 @@ void Crawl_Open(){
 		//// 舵机控制相关的参数
 	// 时间间隔ms
 	// 可以尝试修改设置更小的时间间隔，例如500ms
-	uint16_t interval = 500;
+	uint16_t interval = 200;
 	// 舵机执行功率 mV 默认为0
 	uint16_t power = 0;
 	// 设置舵机角度的时候, 是否为阻塞式
@@ -113,7 +113,7 @@ void Forward(){
 		//// 舵机控制相关的参数
 	// 时间间隔ms
 	// 可以尝试修改设置更小的时间间隔，例如500ms
-	uint16_t interval = 500;
+	uint16_t interval = 200;
 	// 舵机执行功率 mV 默认为0
 	uint16_t power = 0;
 	// 设置舵机角度的时候, 是否为阻塞式
@@ -134,7 +134,7 @@ void Backward(){
 	//// 舵机控制相关的参数
 	// 时间间隔ms
 	// 可以尝试修改设置更小的时间间隔，例如500ms
-	uint16_t interval = 500;
+	uint16_t interval = 200;
 	// 舵机执行功率 mV 默认为0
 	uint16_t power = 0;
 	// 设置舵机角度的时候, 是否为阻塞式
@@ -147,7 +147,7 @@ void Backward(){
 	
 	// 控制舵机旋转到另外一个角度
 	//FSUS_SetServoAngle(servo_usart, 1, 24, interval, power, wait);
-	FSUS_SetServoAngle(servo_usart, 2, 60, interval, power, wait);
+	FSUS_SetServoAngle(servo_usart, 2, 64, interval, power, wait);
 	//FSUS_SetServoAngle(servo_usart, 3, 0, interval, power, wait);
 	
 	// 阻塞式等待, 等待旋转到目标角度
@@ -163,7 +163,7 @@ void Location_First(){
 	//// 舵机控制相关的参数
 	// 时间间隔ms
 	// 可以尝试修改设置更小的时间间隔，例如500ms
-	uint16_t interval = 200;
+	uint16_t interval = 100;
 	// 舵机执行功率 mV 默认为0
 	uint16_t power = 0;
 	// 设置舵机角度的时候, 是否为阻塞式
@@ -183,7 +183,7 @@ void Location_First(){
 // 位置2
 void Location_Second(){
 		// 可以尝试修改设置更小的时间间隔，例如500ms
-	uint16_t interval = 200;
+	uint16_t interval = 100;
 	// 舵机执行功率 mV 默认为0
 	uint16_t power = 0;
 	// 设置舵机角度的时候, 是否为阻塞式
@@ -201,7 +201,7 @@ void Location_Second(){
 // 位置3
 void Location_Third(){
 			// 可以尝试修改设置更小的时间间隔，例如500ms
-	uint16_t interval = 200;
+	uint16_t interval = 100;
 	// 舵机执行功率 mV 默认为0
 	uint16_t power = 0;
 	// 设置舵机角度的时候, 是否为阻塞式
