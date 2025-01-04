@@ -157,7 +157,7 @@ int main(void)
   // Delay_ms(3000);
   // IMU_Data_Proc();
   // Delay_ms(500);
-
+//Action_Catch_Obj_To_ZhuanPan(1);
   while (1)
   { // Car_Turn(90,400,220);
     //		Car_Go_Target(0, 80, 200, 150);

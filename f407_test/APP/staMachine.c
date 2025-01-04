@@ -16,7 +16,7 @@ uint8_t is_wait_jetson_grab = 1; // 是否抓取
 #define turn_speed 300
 #define turn_acc 167
 #define turn_time 300
-static State currentState = STATE_IDLE;
+static State currentState = MOVE_TO_RAW;
 
 void StateMachine_SetState(State newState)
 {
@@ -25,7 +25,7 @@ void StateMachine_SetState(State newState)
 
 void StateMachine_Init(void)
 {
-    StateMachine_SetState(STATE_IDLE);
+    StateMachine_SetState(MOVE_TO_RAW);
 }
 
 void StateMachine_Update(void)
@@ -109,7 +109,7 @@ case STATE_CUSTOM:
         case 7: // y轴方向走-1720mm
             Counter_Times = 800;
             Counter_Enable = 1;
-            Car_Go_Target(0, -1700, 200, 130);
+            Car_Go_Target(0, -1685, 200, 130);
             running_flag++;
             break;
 
@@ -303,7 +303,7 @@ case STATE_CUSTOM:
                 // printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 Counter_Times = 600;
                 Counter_Enable = 1;
-                Car_Go_Target(0, 1500, 160, 150);
+                Car_Go_Target(0, 1450, 160, 150);
                 running_flag++;
                 break;
 
@@ -311,7 +311,7 @@ case STATE_CUSTOM:
                 // printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 Counter_Times = 80;
                 Counter_Enable = 1;
-                Car_Go_Target(50, 0, 200, 150);
+                Car_Go_Target(30, 0, 200, 150);
                 running_flag++;
                 break;
             case 3: // 给jetson发送到达原料区信号
@@ -374,7 +374,7 @@ case STATE_CUSTOM:
                 // printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 Counter_Times = 200;
                 Counter_Enable = 1;
-                Car_Go_Target(0, -380, 300, 150);
+                Car_Go_Target(0, -430, 300, 150);
                 running_flag++;
                 break;
 
@@ -489,8 +489,15 @@ case STATE_CUSTOM:
                     printf("t8.txt=\"Error: Invalid QR Code\"\xff\xff\xff");
                 }
                 break;
-
-            case 9:
+            case 9: // x轴退80mm
+                // printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
+                // printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                Counter_Times = 80;
+                Counter_Enable = 1;
+                Car_Go_Target(-80, 0, 200, 150);
+                running_flag++;
+                break;
+            case 10:
 
                 // printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 is_turning = 1;
@@ -524,18 +531,17 @@ case STATE_CUSTOM:
                 Counter_Enable = 1;
                 if (QRCodeString[2] == '1')
                 {
-                    Car_Go_Target(0, -875 + 100, 300, 150);
+                    Car_Go_Target(0, -800 + 100, 300, 150);
                 }
                 else if (QRCodeString[2] == '2')
                 {
-                    Car_Go_Target(0, -875 + 0, 300, 150);
+                    Car_Go_Target(0, -800 + 0, 300, 150);
                 }
                 else if (QRCodeString[2] == '3')
                 {
-                    Car_Go_Target(0, -875 + 200, 300, 150);
+                    Car_Go_Target(0, -800 + 200, 300, 150);
                 }
 								else{
-								Car_Go_Target(0, -875 + 0, 300, 150);
 								}
 
                 running_flag++;
@@ -577,7 +583,15 @@ case STATE_CUSTOM:
                 Car_Go_Target(0, -860, 300, 150);
                 running_flag++;
                 break;
-            case 4:
+            case 4: // x轴前进50mm
+                // printf("t5.txt=\"%d\"\xff\xff\xff", currentState);
+                // printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
+                Counter_Times = 80;
+                Counter_Enable = 1;
+                Car_Go_Target(50, 0, 200, 150);
+                running_flag++;
+                break;
+            case 5:
                  printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
 
                 if (QRCodeString[0] == '2' && QRCodeString[1] == '1' && QRCodeString[2] == '3')
@@ -596,7 +610,7 @@ case STATE_CUSTOM:
                 }
                 else if (QRCodeString[0] == '1' && QRCodeString[1] == '2' && QRCodeString[2] == '3')
                 {
-                    if (Action_Put_Obj_To_Map_123())
+                    if (Action_Put_Obj_To_Map_123_Tempstore())
                     {
                         running_flag++;
                     }
@@ -628,7 +642,7 @@ case STATE_CUSTOM:
                 }
                 break;
 
-            case 5:
+            case 6:
 
                 // printf("t9.txt=\"%d\"\xff\xff\xff", running_flag);
                 is_turning = 1;
@@ -662,15 +676,15 @@ case STATE_CUSTOM:
                 Counter_Enable = 1;
                 if (QRCodeString[2] == '1')
                 {
-                    Car_Go_Target(0, -860 + 100, 300, 150);
+                    Car_Go_Target(0, -800 + 100, 300, 150);
                 }
                 else if (QRCodeString[2] == '2')
                 {
-                    Car_Go_Target(0, -860 + 0, 300, 150);
+                    Car_Go_Target(0, -800 + 0, 300, 150);
                 }
                 else if (QRCodeString[2] == '3')
                 {
-                    Car_Go_Target(0, -860 + 200, 300, 150);
+                    Car_Go_Target(0, -800 + 200, 300, 150);
                 }
                 running_flag++;
                 break;
@@ -992,7 +1006,7 @@ case STATE_CUSTOM:
                 }
                 else if (QRCodeString[4] == '1' && QRCodeString[5] == '2' && QRCodeString[6] == '3')
                 {
-                    if (Action_Put_Obj_To_Map_123())
+                    if (Action_Put_Obj_To_Map_123_Tempstore_Again())
                     {
                         running_flag++;
                     }
@@ -1013,7 +1027,7 @@ case STATE_CUSTOM:
                 }
                 else if (QRCodeString[4] == '3' && QRCodeString[5] == '2' && QRCodeString[6] == '1')
                 {
-                    if (Action_Put_Obj_To_Map_321_Tempstore())
+                    if (Action_Put_Obj_To_Map_321_Tempstore_Again())
                     {
                         running_flag++;
                     }

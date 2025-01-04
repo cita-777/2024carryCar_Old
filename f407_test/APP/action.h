@@ -20,6 +20,8 @@ uint8_t Action_Put_Obj_To_Map_132(void);
 uint8_t Action_Put_Obj_To_Map_213(void);
 uint8_t Action_Put_Obj_To_Map_231(void);
 
+uint8_t Action_Put_Obj_To_Map_123_Tempstore(void);
+uint8_t Action_Put_Obj_To_Map_321_Tempstore_Again(void);
 uint8_t Action_Put_Obj_To_Map_321_Tempstore(void);
 uint8_t Action_Put_Obj_To_Map_123_Tempstore_Again(void);
 #endif
